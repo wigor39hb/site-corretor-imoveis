@@ -139,7 +139,7 @@ Outros pontos combinados:
 - `src/components/public/CorretorResponsavel.tsx` — cartão do corretor.
 
 ### 4.2 Painel admin
-- **Login simulado** — `src/lib/auth-config.ts` com `LOGIN_SIMULADO = true`:
+- **Login simulado** (⚠️ histórico: substituído pelo login real em 16/10/2026, ver seção 8) — `src/lib/auth-config.ts` com `LOGIN_SIMULADO = true`:
   - o login aceita **qualquer e-mail e senha**;
   - a proteção do `/admin`, o layout do painel e o botão Sair não consultam o Supabase;
   - ⚠️ **Não pode ir para o ar assim.** Na etapa do banco, mudar para `false`.
@@ -213,8 +213,8 @@ Outros pontos combinados:
 2. Rode `npm run dev -- -p 3001` e espere aparecer `✓ Ready`.
 3. Abra:
    - site: `http://localhost:3001`
-   - painel: `http://localhost:3001/admin/login`, entrando com qualquer e-mail e senha.
-4. Use a caixa **"Teste: ver painel como"**, no menu lateral, para alternar entre administrador e corretor.
+   - painel: `http://localhost:3001/admin/login`, entrando com um usuário cadastrado no Supabase (Authentication → Users).
+4. Para testar como corretor, crie outro usuário no Supabase (ele já nasce como corretor).
 
 Cuidados:
 - **O computador está com pouca memória.** O servidor já caiu mais de uma vez. Feche programas e abas que não estiver usando. Se houver outro projeto rodando na porta 3000, desligue-o.
@@ -229,7 +229,7 @@ Verificações de código (rodar na pasta `fornt-end`):
 
 ## 7. Próximos passos
 
-1. Terminar a seção 8 (passo 4 em diante: primeiro admin e login real).
+1. ~~Primeiro admin e login real~~ ✅ feito.
 2. Você me passa os ajustes que viu no painel, e vamos ligando tela por tela ao banco (Configurações, Corretores, Imóveis, Empreendimentos, Fotos).
 3. Adaptar as telas públicas (Sobre, lista de Empreendimentos, só corretores ativos…) já lendo do banco.
 
@@ -278,6 +278,10 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
     select nome, email, papel, ativo from public.perfis;
     ```
   - esperado: uma linha com `admin` e `true`.
-- [ ] 5. Ligar o login de verdade (`LOGIN_SIMULADO = false` em `src/lib/auth-config.ts`), trocar a simulação de papéis (`SessaoContext`) pelo usuário logado, e testar entrar/sair.
+- [x] 5. Login de verdade ligado e testado (16/10/2026):
+  - `LOGIN_SIMULADO` e `src/lib/auth-config.ts` foram **removidos**;
+  - o layout do painel lê o usuário logado e o perfil dele na tabela `perfis` e passa para o `SessaoContext` (a caixa "Teste: ver painel como" saiu);
+  - conta desativada não entra (aviso no login) e, se for desativada logada, vê a tela "Conta desativada";
+  - as demais telas ainda usam os dados de exemplo até serem ligadas ao banco (o admin vê todos os exemplos).
 - [ ] 6. Ligar as telas do painel ao banco, uma por uma (etapa 3).
 - Mais tarde: a conta do dono da KL (admin) e as dos corretores serão criadas pela tela Corretores do painel.

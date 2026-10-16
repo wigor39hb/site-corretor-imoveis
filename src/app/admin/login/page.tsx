@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { LOGIN_SIMULADO } from "@/lib/auth-config";
 import { Eye, EyeOff, Mail } from "lucide-react";
 
 export default function LoginPage() {
@@ -19,19 +18,27 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    if (LOGIN_SIMULADO) {
-      router.push("/admin");
-      return;
-    }
-
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (authError) {
       setError("Email ou senha incorretos.");
+      setLoading(false);
+      return;
+    }
+
+    const { data: perfil } = await supabase
+      .from("perfis")
+      .select("ativo")
+      .eq("id", data.user.id)
+      .single();
+
+    if (!perfil?.ativo) {
+      await supabase.auth.signOut();
+      setError("Seu acesso ao painel está desativado. Fale com um administrador.");
       setLoading(false);
       return;
     }

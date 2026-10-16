@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
 import { useSessao } from "@/context/SessaoContext";
 import { SITE } from "@/lib/site";
-import { corretores, papelLabel } from "@/lib/mock/corretores";
+import { papelLabel } from "@/lib/mock/corretores";
 import { iniciais } from "@/components/admin/ui";
 import { LayoutDashboard, Home, Building2, User, Users, Settings, LogOut, X } from "lucide-react";
 
@@ -21,7 +21,7 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { open, close } = useSidebar();
-  const { usuario, isAdmin, trocarUsuario } = useSessao();
+  const { usuario, isAdmin } = useSessao();
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
@@ -143,44 +143,6 @@ export default function Sidebar() {
               );
             })}
         </nav>
-
-        {/* Simulação de usuário — só para testar as telas antes do login real */}
-        <div style={{ padding: "12px 24px", borderTop: "1px dashed rgba(201,169,110,0.2)" }}>
-          <label
-            style={{
-              display: "block",
-              fontFamily: "var(--font-inter)",
-              fontSize: "10px",
-              color: "rgba(201,169,110,0.6)",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              marginBottom: "6px",
-            }}
-          >
-            Teste: ver painel como
-          </label>
-          <select
-            value={usuario.id}
-            onChange={(e) => trocarUsuario(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "7px 10px",
-              borderRadius: "6px",
-              border: "1px solid rgba(255,255,255,0.12)",
-              background: "rgba(255,255,255,0.05)",
-              color: "rgba(255,255,255,0.8)",
-              fontFamily: "var(--font-inter)",
-              fontSize: "12px",
-              outline: "none",
-            }}
-          >
-            {corretores.map((c) => (
-              <option key={c.id} value={c.id} style={{ color: "#000" }}>
-                {c.nome} ({papelLabel[c.papel]})
-              </option>
-            ))}
-          </select>
-        </div>
 
         {/* User */}
         <div

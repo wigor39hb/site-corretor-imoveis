@@ -1,48 +1,30 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { corretores, getCorretor, type CorretorMock } from "@/lib/mock/corretores";
+import { createContext, useContext } from "react";
+import type { CorretorMock } from "@/lib/mock/corretores";
 
-// Usuário logado no painel. Provisório: hoje é simulado para testar as telas
-// com cada papel. Na etapa do banco, vem do login de verdade.
+// Usuário logado no painel, lido do banco (tabela perfis) pelo layout do painel.
+// Usa o mesmo formato dos corretores de exemplo para as telas que ainda não
+// foram ligadas ao banco continuarem funcionando.
+export type UsuarioSessao = CorretorMock;
+
 interface SessaoContextType {
-  usuario: CorretorMock;
+  usuario: UsuarioSessao;
   isAdmin: boolean;
-  trocarUsuario: (id: string) => void;
 }
 
-const STORAGE_KEY = "kl-admin-usuario-simulado";
+const SessaoContext = createContext<SessaoContextType | null>(null);
 
-const SessaoContext = createContext<SessaoContextType>({
-  usuario: corretores[0],
-  isAdmin: true,
-  trocarUsuario: () => {},
-});
-
-export function SessaoProvider({ children }: { children: React.ReactNode }) {
-  const [usuarioId, setUsuarioId] = useState(corretores[0].id);
-
-  useEffect(() => {
-    try {
-      const salvo = localStorage.getItem(STORAGE_KEY);
-      if (salvo) setUsuarioId(salvo);
-    } catch {}
-  }, []);
-
-  const trocarUsuario = (id: string) => {
-    setUsuarioId(id);
-    try {
-      localStorage.setItem(STORAGE_KEY, id);
-    } catch {}
-  };
-
-  const usuario = getCorretor(usuarioId);
-
+export function SessaoProvider({ usuario, children }: { usuario: UsuarioSessao; children: React.ReactNode }) {
   return (
-    <SessaoContext.Provider value={{ usuario, isAdmin: usuario.papel === "admin", trocarUsuario }}>
+    <SessaoContext.Provider value={{ usuario, isAdmin: usuario.papel === "admin" }}>
       {children}
     </SessaoContext.Provider>
   );
 }
 
-export const useSessao = () => useContext(SessaoContext);
+export function useSessao() {
+  const sessao = useContext(SessaoContext);
+  if (!sessao) throw new Error("useSessao precisa estar dentro do SessaoProvider");
+  return sessao;
+}
