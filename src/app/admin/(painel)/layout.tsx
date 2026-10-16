@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { SessaoProvider, type UsuarioSessao } from "@/context/SessaoContext";
+import { ConfigSiteProvider } from "@/context/ConfigSiteContext";
+import { getConfiguracoes } from "@/lib/configuracoes-servidor";
 import Sidebar from "@/components/admin/Sidebar";
 import Topbar from "@/components/admin/Topbar";
 
@@ -25,6 +27,8 @@ export default async function AdminLayout({
 
   if (!perfil || !perfil.ativo) return <ContaDesativada />;
 
+  const config = await getConfiguracoes();
+
   const usuario: UsuarioSessao = {
     id: perfil.id,
     nome: perfil.nome || user.email || "",
@@ -42,6 +46,7 @@ export default async function AdminLayout({
 
   return (
     <SessaoProvider usuario={usuario}>
+      <ConfigSiteProvider config={config}>
       <SidebarProvider>
         <div className="flex h-screen bg-neutral-100 overflow-hidden">
           <Sidebar />
@@ -56,6 +61,7 @@ export default async function AdminLayout({
           </div>
         </div>
       </SidebarProvider>
+      </ConfigSiteProvider>
     </SessaoProvider>
   );
 }

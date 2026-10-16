@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Eye, EyeOff, Mail } from "lucide-react";
+import { useConfigSite } from "@/context/ConfigSiteContext";
+import Logo from "@/components/shared/Logo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -12,6 +14,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const config = useConfigSite();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -117,6 +120,11 @@ export default function LoginPage() {
       >
         <div style={{ width: "100%", maxWidth: "400px" }}>
           <div style={{ marginBottom: "48px" }}>
+            {config.logoUrl && (
+              <div style={{ marginBottom: "32px" }}>
+                <Logo logoUrl={config.logoUrl} nome={config.nome} altura={56} semLogo={null} />
+              </div>
+            )}
             <div
               style={{
                 fontFamily: "var(--font-playfair)",

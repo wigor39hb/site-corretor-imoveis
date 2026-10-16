@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
-import { SITE } from "@/lib/site";
+import { getConfiguracoes } from "@/lib/configuracoes-servidor";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -23,13 +23,19 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export const metadata: Metadata = {
-  title: {
-    default: SITE.nome,
-    template: `%s | ${SITE.nome}`,
-  },
-  description: "Imóveis de alto padrão com atendimento personalizado.",
-};
+// Título das páginas e ícone do site vêm das Configurações do site.
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getConfiguracoes();
+  const icone = config.faviconUrl ?? "/icone-padrao.svg";
+  return {
+    title: {
+      default: config.nome,
+      template: `%s | ${config.nome}`,
+    },
+    description: "Imóveis de alto padrão com atendimento personalizado.",
+    icons: { icon: icone, apple: icone },
+  };
+}
 
 export default function RootLayout({
   children,

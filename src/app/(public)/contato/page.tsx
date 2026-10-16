@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { SITE } from "@/lib/site";
+import { useConfigSite } from "@/context/ConfigSiteContext";
+import { linkRede } from "@/lib/configuracoes";
+import { formatWhatsapp } from "@/lib/helpers/formatters";
 import { corretores } from "@/lib/mock/corretores";
 import { whatsappLink } from "@/lib/helpers/whatsapp";
 
@@ -13,6 +15,7 @@ const WA_SVG = () => (
 );
 
 export default function ContatoPage() {
+  const config = useConfigSite();
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
@@ -155,11 +158,11 @@ export default function ContatoPage() {
             <div style={{ background: "var(--neutral-50)", border: "1px solid var(--neutral-200)", padding: "32px" }}>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: "16px", fontWeight: 600, color: "var(--navy-900)", marginBottom: "24px", paddingBottom: "16px", borderBottom: "1px solid var(--neutral-200)" }}>Outras formas de contato</div>
               {[
-                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.81 19.79 19.79 0 01.07 2.18 2 2 0 012.06 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>, label: "Telefone", value: "(11) 9 9999-9999", href: "tel:+5511999999999" },
-                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label: "E-mail", value: SITE.email, href: `mailto:${SITE.email}` },
-                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: "Horário de atendimento", value: "Seg – Sex: 8h às 19h / Sábado: 9h às 14h", href: null },
-                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>, label: "Área de atuação", value: "São Paulo – SP / Zona Sul, Oeste e Centro Expandido", href: null },
-              ].map(({ icon, label, value, href }) => (
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.81 19.79 19.79 0 01.07 2.18 2 2 0 012.06 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>, label: "Telefone", value: formatWhatsapp(config.whatsapp), href: `tel:+${config.whatsapp}` },
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label: "E-mail", value: config.email, href: `mailto:${config.email}` },
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: "Horário de atendimento", value: config.horario, href: null },
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>, label: "Endereço", value: config.endereco, href: null },
+              ].filter((item) => item.value).map(({ icon, label, value, href }) => (
                 <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: "16px", marginBottom: "20px" }}>
                   <div style={{ width: "40px", height: "40px", background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</div>
                   <div>
@@ -173,15 +176,17 @@ export default function ContatoPage() {
             </div>
 
             {/* Social Card */}
+            {(config.instagram || config.linkedin || config.facebook || config.youtube) && (
             <div style={{ background: "#fff", border: "1px solid var(--neutral-200)", padding: "28px" }}>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: "15px", fontWeight: 600, color: "var(--navy-900)", marginBottom: "18px" }}>Redes Sociais</div>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {[
-                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>, name: "Instagram", handle: SITE.nomeCurto },
-                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>, name: "LinkedIn", handle: SITE.nome },
-                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#C9A96E"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, name: "Facebook", handle: SITE.nome },
-                ].map(({ icon, name, handle }) => (
-                  <a key={name} href="#" className="social-link">
+                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>, name: "Instagram", handle: config.instagram, href: linkRede("instagram", config.instagram) },
+                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>, name: "LinkedIn", handle: config.linkedin, href: linkRede("linkedin", config.linkedin) },
+                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#C9A96E"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, name: "Facebook", handle: config.facebook, href: linkRede("facebook", config.facebook) },
+                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="#C9A96E"/></svg>, name: "YouTube", handle: config.youtube, href: linkRede("youtube", config.youtube) },
+                ].filter((r) => r.href).map(({ icon, name, handle, href }) => (
+                  <a key={name} href={href!} target="_blank" rel="noopener noreferrer" className="social-link">
                     <div style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</div>
                     <div>
                       <div style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, color: "var(--navy-900)", letterSpacing: "0.04em" }}>{name}</div>
@@ -191,6 +196,7 @@ export default function ContatoPage() {
                 ))}
               </div>
             </div>
+            )}
           </div>
         </div>
       </section>
@@ -213,7 +219,7 @@ export default function ContatoPage() {
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: "20px", fontWeight: 600, color: "var(--navy-900)", marginBottom: "4px" }}>{c.nome}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: "11px", letterSpacing: "0.1em", color: "var(--gold-500)", marginBottom: "12px" }}>{c.creci}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 300, color: "var(--neutral-600)", marginBottom: "24px" }}>{c.especialidade}</div>
-                <a href={whatsappLink(c.whatsapp, `Olá, ${c.nome.split(" ")[0]}! Vim pelo site da ${SITE.nomeCurto}.`)} target="_blank" rel="noopener noreferrer" className="btn-whatsapp" style={{ width: "100%", display: "flex" }}><WA_SVG /> WhatsApp</a>
+                <a href={whatsappLink(c.whatsapp, `Olá, ${c.nome.split(" ")[0]}! Vim pelo site da ${config.nomeCurto}.`)} target="_blank" rel="noopener noreferrer" className="btn-whatsapp" style={{ width: "100%", display: "flex" }}><WA_SVG /> WhatsApp</a>
               </div>
             ))}
           </div>

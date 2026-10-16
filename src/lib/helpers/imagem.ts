@@ -40,3 +40,55 @@ export async function apagarArquivo(url: string | null) {
   if (!caminho) return;
   await createClient().storage.from(BUCKET_FOTOS).remove([caminho]);
 }
+
+function carregarCanvas(largura: number, altura: number) {
+  const canvas = document.createElement("canvas");
+  canvas.width = largura;
+  canvas.height = altura;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Navegador sem suporte a canvas");
+  ctx.imageSmoothingQuality = "high";
+  return { canvas, ctx };
+}
+
+function paraBlob(canvas: HTMLCanvasElement, formato: string, qualidade?: number): Promise<Blob> {
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Falha ao comprimir"))), formato, qualidade),
+  );
+}
+
+// Reduz a imagem para no máximo `ladoMaior` px (sem cortar), em WebP.
+// Mantém fundo transparente (logo).
+export async function comprimir(arquivo: File, ladoMaior = 2560, qualidade = 0.85): Promise<Blob> {
+  const bitmap = await createImageBitmap(arquivo);
+  const escala = Math.min(1, ladoMaior / Math.max(bitmap.width, bitmap.height));
+  const largura = Math.round(bitmap.width * escala);
+  const altura = Math.round(bitmap.height * escala);
+  const { canvas, ctx } = carregarCanvas(largura, altura);
+  ctx.drawImage(bitmap, 0, 0, largura, altura);
+  bitmap.close();
+  return paraBlob(canvas, "image/webp", qualidade);
+}
+
+// Ícone do site: quadrado de `lado` px em PNG; a imagem é encaixada inteira,
+// centralizada, com fundo transparente onde sobrar.
+export async function iconeQuadrado(arquivo: File, lado = 512): Promise<Blob> {
+  const bitmap = await createImageBitmap(arquivo);
+  const escala = Math.min(lado / bitmap.width, lado / bitmap.height);
+  const largura = bitmap.width * escala;
+  const altura = bitmap.height * escala;
+  const { canvas, ctx } = carregarCanvas(lado, lado);
+  ctx.drawImage(bitmap, (lado - largura) / 2, (lado - altura) / 2, largura, altura);
+  bitmap.close();
+  return paraBlob(canvas, "image/png");
+}
+
+// Envia o arquivo ao Storage e devolve o endereço público.
+export async function enviarArquivo(caminho: string, arquivo: Blob): Promise<string> {
+  const supabase = createClient();
+  const { error } = await supabase.storage
+    .from(BUCKET_FOTOS)
+    .upload(caminho, arquivo, { contentType: arquivo.type, cacheControl: "31536000" });
+  if (error) throw error;
+  return supabase.storage.from(BUCKET_FOTOS).getPublicUrl(caminho).data.publicUrl;
+}

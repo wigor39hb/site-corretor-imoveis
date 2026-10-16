@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { SITE } from "@/lib/site";
+import Logo from "@/components/shared/Logo";
+import type { ConfigSite } from "@/lib/configuracoes";
 
 const footerLinks = [
   { href: "/imoveis", label: "Imóveis" },
@@ -8,7 +9,7 @@ const footerLinks = [
   { href: "/contato", label: "Contato" },
 ];
 
-export default function Footer() {
+export default function Footer({ config }: { config: ConfigSite }) {
   return (
     <footer style={{ background: "#080F17" }} className="footer-outer">
       <div style={{
@@ -19,14 +20,21 @@ export default function Footer() {
         flexWrap: "wrap", gap: "32px",
       }}>
         {/* Logo */}
-        <div>
-          <div style={{ fontFamily: "var(--font-serif)", fontSize: "20px", fontWeight: 700, color: "#fff" }}>
-            {SITE.nomeCurto}
-          </div>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold-400)", marginTop: "4px" }}>
-            Imobiliários · São Paulo
-          </div>
-        </div>
+        <Logo
+          logoUrl={config.logoUrl}
+          nome={config.nome}
+          altura={48}
+          semLogo={
+            <div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: "20px", fontWeight: 700, color: "#fff" }}>
+                {config.nomeCurto}
+              </div>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold-400)", marginTop: "4px" }}>
+                Imobiliários · São Paulo
+              </div>
+            </div>
+          }
+        />
 
         {/* Links */}
         <ul style={{ display: "flex", gap: "32px", listStyle: "none", flexWrap: "wrap" }}>
@@ -47,10 +55,10 @@ export default function Footer() {
         flexWrap: "wrap", gap: "8px",
       }}>
         <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.05em" }}>
-          © {new Date().getFullYear()} {SITE.nome}. Todos os direitos reservados.
+          © {new Date().getFullYear()} {config.nome}. Todos os direitos reservados.
         </span>
         <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--gold-500)", opacity: 0.6 }}>
-          {SITE.creci}
+          {config.creci}
         </span>
       </div>
     </footer>

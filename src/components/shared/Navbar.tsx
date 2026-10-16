@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Logo from "@/components/shared/Logo";
+import { useConfigSite } from "@/context/ConfigSiteContext";
 
 const navLinks = [
   { href: "/imoveis", label: "Imóveis" },
@@ -15,6 +17,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const config = useConfigSite();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -72,12 +75,21 @@ export default function Navbar() {
       >
         {/* Logo */}
         <Link href="/" style={{ textDecoration: "none" }}>
-          <div style={{ fontFamily: "var(--font-serif)", fontSize: "22px", fontWeight: 700, color: "#fff", lineHeight: 1, letterSpacing: "0.02em" }}>
-            KL Investimentos
-          </div>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "var(--gold-400)", letterSpacing: "0.18em", textTransform: "uppercase", marginTop: "3px" }}>
-            Imobiliários
-          </div>
+          <Logo
+            logoUrl={config.logoUrl}
+            nome={config.nome}
+            altura={scrolled ? 40 : 48}
+            semLogo={
+              <>
+                <div style={{ fontFamily: "var(--font-serif)", fontSize: "22px", fontWeight: 700, color: "#fff", lineHeight: 1, letterSpacing: "0.02em" }}>
+                  {config.nomeCurto}
+                </div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "var(--gold-400)", letterSpacing: "0.18em", textTransform: "uppercase", marginTop: "3px" }}>
+                  Imobiliários
+                </div>
+              </>
+            }
+          />
         </Link>
 
         {/* Desktop nav */}

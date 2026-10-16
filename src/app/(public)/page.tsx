@@ -2,10 +2,30 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { SITE } from "@/lib/site";
 import { whatsappLink } from "@/lib/helpers/whatsapp";
+import { useConfigSite } from "@/context/ConfigSiteContext";
+import { partesDestaque } from "@/lib/configuracoes";
+import HeroCarrossel from "@/components/public/HeroCarrossel";
+
+// Texto com trechos entre *asteriscos* em itálico colorido.
+function TextoDestaque({ texto, cor }: { texto: string; cor: string }) {
+  return (
+    <>
+      {partesDestaque(texto).map((p, i) =>
+        p.destaque ? <em key={i} style={{ fontStyle: "italic", color: cor }}>{p.texto}</em> : <span key={i}>{p.texto}</span>
+      )}
+    </>
+  );
+}
+
+// "342+" anima de 0 até 342; valores como "4.9★" aparecem fixos.
+function numeroAnimado(valor: string) {
+  const m = valor.trim().match(/^(\d+)([^\d.,].*)?$/);
+  return m ? { count: m[1], suffix: m[2] ?? "" } : null;
+}
 
 export default function HomePage() {
+  const config = useConfigSite();
   useEffect(() => {
     const revealObserver = new IntersectionObserver(
       (entries) => {
@@ -39,7 +59,7 @@ export default function HomePage() {
           if (e.isIntersecting) {
             const el = e.target as HTMLElement;
             const target = parseInt(el.dataset.count || "0");
-            const suffix = el.dataset.suffix || "+";
+            const suffix = el.dataset.suffix ?? "";
             animateCount(e.target, target, suffix);
             countObserver.unobserve(e.target);
           }
@@ -103,7 +123,7 @@ export default function HomePage() {
               }}
             >
               <span style={{ display: "block", width: "40px", height: "1px", background: "var(--gold-500)" }} />
-              Especialista em Alto Padrão
+              {config.heroFrase}
             </div>
             <h1 style={{
               fontFamily: "var(--font-serif)",
@@ -111,14 +131,14 @@ export default function HomePage() {
               color: "#fff", marginBottom: "24px",
               opacity: 0, animation: "fadeUp 0.9s var(--ease-luxury) 0.4s forwards",
             }}>
-              Seu próximo<br />imóvel começa<br />com <em style={{ fontStyle: "italic", color: "var(--gold-400)" }}>quem entende</em>
+              <TextoDestaque texto={config.heroTitulo} cor="var(--gold-400)" />
             </h1>
             <p style={{
               fontFamily: "var(--font-sans)", fontSize: "16px", fontWeight: 300, lineHeight: 1.8,
               color: "rgba(255,255,255,0.6)", maxWidth: "420px", marginBottom: "48px",
               opacity: 0, animation: "fadeUp 0.9s var(--ease-luxury) 0.6s forwards",
             }}>
-              Mais de 10 anos conectando famílias e investidores aos melhores imóveis de São Paulo. Atendimento exclusivo, resultado garantido.
+              {config.heroTexto}
             </p>
             <div
               className="hero-actions-wrap"
@@ -132,7 +152,7 @@ export default function HomePage() {
                 <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </Link>
               <Link href="/sobre" className="btn-secondary">
-                Conheça meu trabalho
+                Conheça nosso trabalho
               </Link>
             </div>
           </div>
@@ -143,57 +163,14 @@ export default function HomePage() {
             style={{ position: "relative", opacity: 0, animation: "fadeIn 1.2s var(--ease-luxury) 0.5s forwards" }}
           >
             <div style={{ position: "relative", aspectRatio: "3/4", maxHeight: "560px" }}>
-              <div style={{
-                position: "absolute", inset: 0,
-                background: "linear-gradient(135deg, var(--navy-700) 0%, var(--navy-800) 100%)",
-                border: "1px solid rgba(201,169,110,0.2)",
-              }} />
-              <div style={{
-                position: "absolute", inset: 0,
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px",
-              }}>
-                <div style={{
-                  width: "80px", height: "80px", borderRadius: "50%",
-                  background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.3)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <svg width="36" height="36" fill="none" stroke="white" strokeWidth="1.2" viewBox="0 0 24 24" style={{ opacity: 0.5 }}>
-                    <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                  </svg>
-                </div>
-                <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>
-                  Foto do Corretor
-                </span>
+              <div style={{ position: "absolute", inset: 0, border: "1px solid rgba(201,169,110,0.2)", overflow: "hidden" }}>
+                <HeroCarrossel fotos={config.carrossel} nome={config.nomeCurto} />
               </div>
               {/* Corner decorations */}
               <div style={{ position: "absolute", top: "-1px", left: "-1px", width: "60px", height: "60px", borderTop: "2px solid var(--gold-500)", borderLeft: "2px solid var(--gold-500)" }} />
               <div style={{ position: "absolute", bottom: "-1px", right: "-1px", width: "60px", height: "60px", borderBottom: "2px solid var(--gold-500)", borderRight: "2px solid var(--gold-500)" }} />
             </div>
 
-            {/* Float card 1 */}
-            <div style={{
-              position: "absolute", bottom: "-20px", left: "-40px",
-              background: "rgba(13,27,42,0.85)", backdropFilter: "blur(20px)",
-              border: "1px solid rgba(201,169,110,0.2)", padding: "20px 24px",
-              animation: "cardFloat 6s ease-in-out infinite",
-            }}>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 500, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--gold-400)", marginBottom: "6px" }}>Imóveis Vendidos</div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: "28px", fontWeight: 700, color: "#fff", lineHeight: 1 }}>342+</div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "rgba(255,255,255,0.5)", marginTop: "4px" }}>em 10 anos de atuação</div>
-            </div>
-
-            {/* Float card 2 */}
-            <div style={{
-              position: "absolute", top: "40px", right: "-40px",
-              background: "rgba(13,27,42,0.85)", backdropFilter: "blur(20px)",
-              border: "1px solid rgba(201,169,110,0.2)", padding: "20px 24px",
-              animation: "cardFloat 6s ease-in-out infinite",
-              animationDelay: "-3s",
-            }}>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 500, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--gold-400)", marginBottom: "6px" }}>Avaliação</div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: "28px", fontWeight: 700, color: "#fff", lineHeight: 1 }}>★ 4.9</div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "rgba(255,255,255,0.5)", marginTop: "4px" }}>120 clientes satisfeitos</div>
-            </div>
           </div>
         </div>
 
@@ -211,18 +188,13 @@ export default function HomePage() {
       {/* ─── STATS BAR ───────────────────────────────────────── */}
       <div style={{ background: "var(--navy-700)", borderTop: "1px solid rgba(201,169,110,0.15)", borderBottom: "1px solid rgba(201,169,110,0.15)" }}>
         <div className="stats-grid-4">
-          {[
-            { count: "10", suffix: "+", label: "Anos de Experiência" },
-            { count: "342", suffix: "+", label: "Imóveis Vendidos" },
-            { count: "120", suffix: "+", label: "Clientes Atendidos" },
-            { fixed: "4.9★", label: "Avaliação Média" },
-          ].map((stat, i) => (
+          {config.numeros.map((n) => ({ ...numeroAnimado(n.valor), fixed: n.valor, label: n.rotulo })).map((stat, i, lista) => (
             <div
               key={i}
               className={`stat-item reveal${i > 0 ? ` reveal-delay-${i}` : ""}`}
               style={{
                 padding: "36px 0", textAlign: "center",
-                borderRight: i < 3 ? "1px solid rgba(255,255,255,0.07)" : "none",
+                borderRight: i < lista.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none",
               }}
             >
               {stat.count ? (
@@ -231,7 +203,7 @@ export default function HomePage() {
                   data-suffix={stat.suffix}
                   style={{ fontFamily: "var(--font-serif)", fontSize: "40px", fontWeight: 700, color: "var(--gold-400)", lineHeight: 1, marginBottom: "8px" }}
                 >
-                  0+
+                  {`0${stat.suffix}`}
                 </div>
               ) : (
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: "40px", fontWeight: 700, color: "var(--gold-400)", lineHeight: 1, marginBottom: "8px" }}>
@@ -333,41 +305,32 @@ export default function HomePage() {
                 border: "1px solid rgba(13,27,42,0.1)",
                 position: "relative", overflow: "hidden",
               }}>
-                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px" }}>
-                  <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <svg width="40" height="40" fill="none" stroke="white" strokeWidth="1.2" viewBox="0 0 24 24" style={{ opacity: 0.5 }}>
-                      <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                    </svg>
+                {config.sobreFotoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={config.sobreFotoUrl} alt={config.nome} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-serif)", fontSize: "24px", fontWeight: 700, color: "rgba(201,169,110,0.35)", textAlign: "center", padding: "24px" }}>
+                    {config.nomeCurto}
                   </div>
-                  <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>Foto do Corretor</span>
-                </div>
+                )}
               </div>
               <div style={{ position: "absolute", bottom: "-20px", right: "-20px", width: "200px", height: "200px", border: "1px solid rgba(201,169,110,0.3)", zIndex: -1 }} />
-              <div style={{ position: "absolute", bottom: "32px", left: "-32px", background: "var(--gold-500)", padding: "24px 28px", textAlign: "center" }}>
-                <div style={{ fontFamily: "var(--font-serif)", fontSize: "48px", fontWeight: 700, color: "var(--navy-900)", lineHeight: 1 }}>10+</div>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--navy-700)", marginTop: "6px" }}>Anos de<br />Experiência</div>
-              </div>
             </div>
 
             {/* Text */}
             <div>
               <div className="reveal" style={{ display: "inline-flex", alignItems: "center", gap: "12px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold-500)", marginBottom: "20px" }}>
                 <span style={{ display: "block", width: "32px", height: "1px", background: "var(--gold-500)" }} />
-                Sobre Mim
+                Sobre Nós
               </div>
               <h2 className="reveal reveal-delay-1" style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(32px, 4vw, 48px)", fontWeight: 700, lineHeight: 1.15, color: "var(--navy-900)" }}>
-                Mais do que um corretor,<br /><em style={{ fontStyle: "italic", color: "var(--navy-700)" }}>um parceiro</em>
+                <TextoDestaque texto={config.homeSobreTitulo} cor="var(--navy-700)" />
               </h2>
               <p className="reveal reveal-delay-2" style={{ fontFamily: "var(--font-sans)", fontSize: "16px", fontWeight: 300, lineHeight: 1.9, color: "var(--neutral-600)", marginTop: "32px", marginBottom: "40px" }}>
-                Sou especialista em imóveis de alto padrão em São Paulo, com mais de uma década de experiência no mercado imobiliário. Meu trabalho vai além de mostrar imóveis — é entender o que você precisa, o seu estilo de vida, e encontrar o lugar certo para você.
+                {config.homeSobreTexto}
               </p>
               <div className="reveal reveal-delay-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "48px" }}>
-                {[
-                  ["Alto Padrão", "Especialista em imóveis premium e de luxo em SP"],
-                  ["CRECI Ativo", "Registro profissional e atuação 100% regularizada"],
-                  ["Investimentos", "Consultoria para investidores do mercado imobiliário"],
-                  ["Atendimento", "Dedicação exclusiva e personalizada a cada cliente"],
-                ].map(([title, desc]) => (
+                {config.homeSobreItens.map(({ titulo: title, descricao: desc }) => (
                   <div key={title} className="about-spec-item">
                     <div style={{ fontFamily: "var(--font-serif)", fontSize: "14px", fontWeight: 600, color: "var(--navy-900)", marginBottom: "4px" }}>{title}</div>
                     <div style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--neutral-600)", lineHeight: 1.6 }}>{desc}</div>
@@ -375,7 +338,7 @@ export default function HomePage() {
                 ))}
               </div>
               <Link href="/contato" className="btn-primary reveal reveal-delay-4">
-                Fale Comigo
+                Fale Conosco
                 <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </Link>
             </div>
@@ -399,17 +362,17 @@ export default function HomePage() {
               Encontre o imóvel<br />dos seus <em style={{ fontStyle: "italic", color: "var(--gold-400)" }}>sonhos</em>
             </h2>
             <p className="reveal reveal-delay-2" style={{ fontFamily: "var(--font-sans)", fontSize: "15px", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.55)", maxWidth: "480px" }}>
-              Me conta o que você está procurando. Sem compromisso, sem pressão — só resultado.
+              Conte para nós o que você está procurando. Sem compromisso, sem pressão — só resultado.
             </p>
           </div>
           <div className="cta-actions-col reveal reveal-delay-2" style={{ display: "flex", flexDirection: "column", gap: "12px", minWidth: "220px" }}>
-            <a href={whatsappLink(SITE.whatsapp, `Olá! Vim pelo site da ${SITE.nomeCurto}.`)} target="_blank" rel="noopener noreferrer" className="btn-whatsapp">
+            <a href={whatsappLink(config.whatsapp, `Olá! Vim pelo site da ${config.nomeCurto}.`)} target="_blank" rel="noopener noreferrer" className="btn-whatsapp">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
               WhatsApp
             </a>
-            <a href={`mailto:${SITE.email}`} className="btn-outline-gold">
+            <a href={`mailto:${config.email}`} className="btn-outline-gold">
               Enviar E-mail
             </a>
           </div>

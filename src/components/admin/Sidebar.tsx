@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
 import { useSessao } from "@/context/SessaoContext";
-import { SITE } from "@/lib/site";
+import { useConfigSite } from "@/context/ConfigSiteContext";
+import Logo from "@/components/shared/Logo";
 import { papelLabel } from "@/lib/mock/corretores";
 import { Avatar } from "@/components/admin/ui";
 import { LayoutDashboard, Home, Building2, User, Users, Settings, LogOut, X } from "lucide-react";
@@ -22,6 +23,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { open, close } = useSidebar();
   const { usuario, isAdmin } = useSessao();
+  const config = useConfigSite();
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
@@ -68,16 +70,23 @@ export default function Sidebar() {
           }}
         >
           <div>
-            <div
-              style={{
-                fontFamily: "var(--font-playfair)",
-                fontSize: "20px",
-                fontWeight: 700,
-                color: "var(--gold-500)",
-              }}
-            >
-              Admin
-            </div>
+            <Logo
+              logoUrl={config.logoUrl}
+              nome={config.nome}
+              altura={40}
+              semLogo={
+                <div
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontSize: "20px",
+                    fontWeight: 700,
+                    color: "var(--gold-500)",
+                  }}
+                >
+                  Admin
+                </div>
+              }
+            />
             <div
               style={{
                 fontFamily: "var(--font-inter)",
@@ -85,9 +94,10 @@ export default function Sidebar() {
                 color: "rgba(201,169,110,0.5)",
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
+                marginTop: config.logoUrl ? "8px" : 0,
               }}
             >
-              {SITE.nomeCurto}
+              {config.logoUrl ? "Painel administrativo" : config.nomeCurto}
             </div>
           </div>
           <button
