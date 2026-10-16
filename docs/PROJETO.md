@@ -2,7 +2,7 @@
 
 > Documento de continuidade. Registra as decisões, o que já foi feito e o que falta,
 > para retomar o trabalho sem precisar explicar tudo de novo.
-> **Última atualização:** 15/10/2026.
+> **Última atualização:** 16/10/2026.
 
 ---
 
@@ -96,15 +96,28 @@ Outros pontos combinados:
 
 ---
 
+### 2.7 Banco de dados agora, junto com os ajustes (decisão de 16/10/2026)
+- Em vez de ajustar todo o painel com dados de exemplo e só depois ligar o banco, **o banco foi ligado antes**. Cada tela do painel é ajustada **e** ligada ao banco de uma vez, e o resultado já aparece no site.
+- O banco pode ser alterado à vontade enquanto só houver dados de teste. **Dados reais da KL só quando o painel estiver estável.**
+- Cada mudança no banco vai num **arquivo novo** na pasta `supabase/` (ex.: `supabase/002_campo_iptu.sql`), rodado no SQL Editor, para ficar registrado no GitHub. **Nunca rodar de novo o `schema.sql`** (dá erro de "already exists").
+- Regras que estavam em aberto ficaram assim por padrão (fáceis de mudar):
+  - corretores **podem** publicar empreendimentos (vendo só os seus);
+  - publicações **não** precisam de aprovação de admin;
+  - corretor desativado some do site, mas os imóveis dele **ficam guardados** (não aparecem no site) para o admin transferir; o banco não deixa apagar um corretor que tenha publicações.
+
+---
+
 ## 3. Ordem das etapas
+
+> Ordem alterada em 16/10/2026: o banco veio antes dos ajustes de tela (ver 2.7).
 
 | # | Etapa | Status |
 |---|---|---|
 | 0 | Adaptar o front-end para imobiliária (nome KL, equipe, WhatsApp por corretor) | ✅ parcial (falta Sobre e lista de Empreendimentos) |
-| 1 | **Área administrativa** (visual, com dados de exemplo) | ✅ primeira versão pronta; aguardando os ajustes que você quer fazer |
-| 2 | Ajustar as telas públicas para vários corretores | ⏭️ próxima |
-| 3 | Banco de dados (Supabase): tabelas, login real, fotos | ⏳ |
-| 4 | Ativar tela por tela com dados reais e testar | ⏳ |
+| 1 | **Área administrativa** (visual, com dados de exemplo) | ✅ primeira versão pronta |
+| 2 | **Banco de dados (Supabase)**: projeto, tabelas, chaves, primeiro admin, login real | 🔄 em andamento (ver seção 8) |
+| 3 | Ajustar e ativar tela por tela do painel com o banco (seus ajustes entram aqui) | ⏭️ próxima |
+| 4 | Ajustar as telas públicas para vários corretores e ler dados reais | ⏳ |
 | 5 | Formulário de contato funcionando | ⏳ |
 | 6 | SEO / analytics / LGPD (com calma, entendendo antes) | ⏳ |
 | 7 | Domínio e publicação (Vercel Pro + Supabase Pro) | ⏳ |
@@ -114,7 +127,7 @@ Outros pontos combinados:
 
 ## 4. O que já foi feito
 
-> Nada disso foi commitado ainda (ver seção 7).
+> Tudo desta seção está no GitHub, no commit `6d9861f` ("Adapta site para imobiliaria KL e cria painel admin com papeis").
 
 ### 4.1 Site público
 - `src/lib/site.ts` — dados da imobiliária: nome, nome curto, CRECI, WhatsApp e e-mail do dono. **Valores provisórios.**
@@ -216,7 +229,55 @@ Verificações de código (rodar na pasta `fornt-end`):
 
 ## 7. Próximos passos
 
-1. **Salvar o trabalho no GitHub.** Nada desta etapa foi commitado ainda.
-2. Você me passa os ajustes que viu no painel.
-3. Etapa 2: adaptar as telas públicas (Sobre, lista de Empreendimentos, só corretores ativos…).
-4. Responder às perguntas da seção 5 antes da etapa do banco.
+1. Terminar a seção 8 (passo 4 em diante: primeiro admin e login real).
+2. Você me passa os ajustes que viu no painel, e vamos ligando tela por tela ao banco (Configurações, Corretores, Imóveis, Empreendimentos, Fotos).
+3. Adaptar as telas públicas (Sobre, lista de Empreendimentos, só corretores ativos…) já lendo do banco.
+
+---
+
+## 8. Banco de dados (Supabase) — andamento
+
+### 8.1 Projeto
+- **Projeto novo, só da KL**, criado em 16/10/2026 (plano Free, região **São Paulo**). O projeto Supabase antigo que estava no `.env.local` era de outra coisa e **não é usado**.
+- Na criação: **"Habilitar API de Dados" marcada** e **"Expor automaticamente novas tabelas" desmarcada** (tabela nova nasce trancada; o acesso é liberado de propósito no SQL, com `grant`). ⚠️ Por isso, **toda tabela nova criada no futuro precisa de `grant` + regras RLS** no próprio arquivo de mudança.
+- A senha do banco (Database Password) ficou guardada com você.
+
+### 8.2 Chaves (`.env.local`, nunca vai para o GitHub)
+| Variável | Valor | Onde achar no Supabase |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://xxxx.supabase.co` | botão **Connect** ou Project Settings → Data API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `sb_publishable_...` | Project Settings → API Keys |
+| `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_...` (chave mestra, só no servidor) | Project Settings → API Keys |
+
+Os nomes das variáveis continuam os antigos para não mexer no código; a publishable key é a versão nova da "anon key".
+
+### 8.3 Tabelas — `supabase/schema.sql` (já rodado)
+- `perfis` — cada pessoa do painel (admin ou corretor): nome, CRECI, especialidade, WhatsApp, e-mail de contato, foto, bio, Instagram, `papel`, `ativo`, `ordem` na equipe. O e-mail/senha de login ficam no Authentication do Supabase. **O perfil nasce sozinho** quando um usuário é criado, sempre como `corretor`.
+- `configuracoes_site` — uma única linha (id = 1) com nome, CRECI, logo, WhatsApp do dono, contato, redes sociais, textos da home e do Sobre, números em destaque e depoimentos (esses dois em JSON). **Já começa preenchida** com os valores provisórios.
+- `empreendimentos` e `imoveis` — campos dos formulários do painel, mais `corretor_id` (responsável), `destaque` e `visivel` (aparece ou não no site). Começam vazias.
+- `fotos` — uma linha por foto, ligada a um imóvel **ou** a um empreendimento; guarda o caminho no Storage, a ordem (menor = capa) e o tamanho (para o uso de armazenamento no Dashboard).
+- **Storage:** bucket público `fotos` (WebP/JPEG/PNG, até 15 MB por arquivo), com pastas `imoveis/<id>/`, `empreendimentos/<id>/`, `perfis/<id do usuário>/` e `site/` (logo, só admin).
+- **Regras de segurança (RLS), garantidas pelo próprio banco:**
+  - visitante do site só vê o que é `visivel` e de corretor ativo, as configurações e os corretores ativos;
+  - corretor vê/cria/edita/exclui só as próprias publicações e fotos, e edita só o próprio perfil;
+  - admin faz tudo;
+  - só admin muda papel ou ativo/inativo, e ninguém muda o próprio papel nem se desativa (evita ficar sem admin).
+
+### 8.4 Passo a passo
+- [x] 1. Criar o projeto no Supabase
+- [x] 2. Rodar `supabase/schema.sql` no SQL Editor
+- [x] 3. Colocar as chaves novas no `.env.local` (formato conferido)
+- [ ] 4. Criar a conta de admin do Wigor:
+  - Authentication → Users → **Add user → Create new user**, com **Auto Confirm User** marcado;
+  - depois, no SQL Editor (trocar o e-mail):
+    ```sql
+    update public.perfis
+    set papel = 'admin', nome = 'Wigor Ernandes'
+    where id = (select id from auth.users where email = 'seu-email@exemplo.com');
+
+    select nome, email, papel, ativo from public.perfis;
+    ```
+  - esperado: uma linha com `admin` e `true`.
+- [ ] 5. Ligar o login de verdade (`LOGIN_SIMULADO = false` em `src/lib/auth-config.ts`), trocar a simulação de papéis (`SessaoContext`) pelo usuário logado, e testar entrar/sair.
+- [ ] 6. Ligar as telas do painel ao banco, uma por uma (etapa 3).
+- Mais tarde: a conta do dono da KL (admin) e as dos corretores serão criadas pela tela Corretores do painel.
