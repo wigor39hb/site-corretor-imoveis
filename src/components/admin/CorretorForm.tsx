@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { CorretorMock, Papel } from "@/lib/mock/corretores";
 import {
   card, cardHeader, cardBody, cardTitle, cardSub, fieldGroup, fieldLabel, fieldInput, fieldHint,
-  btnPrimary, btnOutline, Obrigatorio, Toggle, useToast, iniciais,
+  btnPrimary, btnOutline, Obrigatorio, Toggle, useToast, iniciais, CampoWhatsapp,
 } from "@/components/admin/ui";
 
 const vazio: CorretorMock = {
@@ -69,8 +69,8 @@ export default function CorretorForm({ inicial, ehVoce = false }: { inicial?: Co
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
                 <div>
                   <label style={fieldLabel}>WhatsApp <Obrigatorio /></label>
-                  <input type="text" style={fieldInput} value={dados.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} placeholder="5511999999999" />
-                  <div style={fieldHint}>Só números, com 55 + DDD. Recebe os contatos dos imóveis dele.</div>
+                  <CampoWhatsapp valor={dados.whatsapp} onChange={(v) => set("whatsapp", v)} />
+                  <div style={fieldHint}>DDD + número. Recebe os contatos dos imóveis dele.</div>
                 </div>
                 <div>
                   <label style={fieldLabel}>E-mail de contato</label>

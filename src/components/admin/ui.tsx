@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Lock } from "lucide-react";
+import { mascaraTelefone, whatsappLocal } from "@/lib/helpers/formatters";
 
 // Estilos e peças reaproveitados pelas telas do painel.
 export const card: React.CSSProperties = { background: "#fff", border: "1px solid var(--neutral-200)", borderRadius: "12px", overflow: "hidden", marginBottom: "20px" };
@@ -33,15 +34,37 @@ export function Toggle({ label, sub, on, onChange }: { label: string; sub: strin
   );
 }
 
+// Campo de WhatsApp: mostra "+55 (11) 99999-9999" enquanto digita e
+// devolve só os dígitos com 55 na frente (5511999999999), que é o que vai para o banco.
+export function CampoWhatsapp({ valor, onChange }: { valor: string; onChange: (valor: string) => void }) {
+  return (
+    <div style={{ display: "flex", alignItems: "stretch" }}>
+      <span style={{ display: "flex", alignItems: "center", padding: "0 12px", border: "1px solid var(--neutral-200)", borderRight: "none", borderRadius: "8px 0 0 8px", background: "var(--neutral-100)", fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--neutral-600)" }}>+55</span>
+      <input
+        type="tel"
+        inputMode="numeric"
+        style={{ ...fieldInput, borderRadius: "0 8px 8px 0" }}
+        placeholder="(11) 99999-9999"
+        value={mascaraTelefone(whatsappLocal(valor))}
+        onChange={(e) => {
+          const digitos = e.target.value.replace(/\D/g, "").slice(0, 11);
+          onChange(digitos ? "55" + digitos : "");
+        }}
+      />
+    </div>
+  );
+}
+
 export function useToast() {
-  const [msg, setMsg] = useState<string | null>(null);
-  const mostrar = (texto: string) => {
-    setMsg(texto);
-    setTimeout(() => setMsg(null), 3000);
+  const [msg, setMsg] = useState<{ texto: string; erro: boolean } | null>(null);
+  // erro = true mostra o aviso em vermelho e por mais tempo
+  const mostrar = (texto: string, erro = false) => {
+    setMsg({ texto, erro });
+    setTimeout(() => setMsg(null), erro ? 6000 : 3000);
   };
   const toast = msg ? (
-    <div style={{ position: "fixed", bottom: "32px", right: "32px", background: "var(--navy-900)", color: "#fff", padding: "16px 24px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "12px", fontSize: "14px", zIndex: 200, borderLeft: "4px solid var(--gold-500)", boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}>
-      ✅ <span>{msg}</span>
+    <div style={{ position: "fixed", bottom: "32px", right: "32px", background: "var(--navy-900)", color: "#fff", padding: "16px 24px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "12px", fontSize: "14px", zIndex: 200, borderLeft: `4px solid ${msg.erro ? "#E05252" : "var(--gold-500)"}`, boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}>
+      {msg.erro ? "⚠️" : "✅"} <span>{msg.texto}</span>
     </div>
   ) : null;
   return { toast, mostrar };

@@ -1,25 +1,86 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useSessao } from "@/context/SessaoContext";
+import { formatWhatsapp, whatsappValido } from "@/lib/helpers/formatters";
 import { papelLabel, type CorretorMock } from "@/lib/mock/corretores";
 import {
   card, cardHeader, cardBody, cardTitle, cardSub, fieldGroup, fieldLabel, fieldInput, fieldHint,
-  btnPrimary, btnOutline, Obrigatorio, useToast, iniciais,
+  btnPrimary, btnOutline, Obrigatorio, useToast, iniciais, CampoWhatsapp,
 } from "@/components/admin/ui";
 
 export default function AdminPerfilPage() {
   const { usuario } = useSessao();
-  // key: recarrega o formulário quando o usuário (simulado) muda
-  return <PerfilForm key={usuario.id} usuario={usuario} />;
+  return <PerfilForm usuario={usuario} />;
 }
 
 function PerfilForm({ usuario }: { usuario: CorretorMock }) {
   const { toast, mostrar } = useToast();
+  const router = useRouter();
   const [dados, setDados] = useState(usuario);
+  const [salvando, setSalvando] = useState(false);
+  const [trocandoSenha, setTrocandoSenha] = useState(false);
+  const [novaSenha, setNovaSenha] = useState("");
+  const [confirmaSenha, setConfirmaSenha] = useState("");
 
   const set = <K extends keyof CorretorMock>(campo: K, valor: CorretorMock[K]) =>
     setDados((d) => ({ ...d, [campo]: valor }));
+
+  async function salvar() {
+    const whatsapp = dados.whatsapp;
+    if (!dados.nome.trim() || !dados.creci.trim() || !whatsapp) {
+      mostrar("Preencha nome, CRECI e WhatsApp.", true);
+      return;
+    }
+    if (!whatsappValido(whatsapp)) {
+      mostrar("WhatsApp incompleto. Digite o DDD e o número.", true);
+      return;
+    }
+    setSalvando(true);
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("perfis")
+      .update({
+        nome: dados.nome.trim(),
+        creci: dados.creci.trim(),
+        whatsapp,
+        email: dados.email.trim() || null,
+        especialidade: dados.especialidade.trim() || null,
+        bio: dados.bio.trim() || null,
+        instagram: dados.instagram.trim() || null,
+      })
+      .eq("id", usuario.id);
+    setSalvando(false);
+    if (error) {
+      mostrar("Não foi possível salvar. Tente novamente.", true);
+      return;
+    }
+    mostrar("Perfil atualizado com sucesso!");
+    router.refresh(); // atualiza o nome no menu lateral
+  }
+
+  async function salvarSenha() {
+    if (novaSenha.length < 8) {
+      mostrar("A senha precisa ter pelo menos 8 caracteres.", true);
+      return;
+    }
+    if (novaSenha !== confirmaSenha) {
+      mostrar("As duas senhas não são iguais.", true);
+      return;
+    }
+    const supabase = createClient();
+    const { error } = await supabase.auth.updateUser({ password: novaSenha });
+    if (error) {
+      mostrar(error.code === "same_password" ? "A nova senha precisa ser diferente da atual." : "Não foi possível trocar a senha.", true);
+      return;
+    }
+    setTrocandoSenha(false);
+    setNovaSenha("");
+    setConfirmaSenha("");
+    mostrar("Senha alterada com sucesso!");
+  }
 
   return (
     <>
@@ -63,8 +124,8 @@ function PerfilForm({ usuario }: { usuario: CorretorMock }) {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
                 <div>
                   <label style={fieldLabel}>WhatsApp <Obrigatorio /></label>
-                  <input type="text" style={fieldInput} value={dados.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} />
-                  <div style={fieldHint}>Só números, com 55 + DDD. Os botões dos seus imóveis chamam este número.</div>
+                  <CampoWhatsapp valor={dados.whatsapp} onChange={(v) => set("whatsapp", v)} />
+                  <div style={fieldHint}>DDD + número. Os botões dos seus imóveis chamam este número.</div>
                 </div>
                 <div>
                   <label style={fieldLabel}>E-mail de contato</label>
@@ -95,7 +156,7 @@ function PerfilForm({ usuario }: { usuario: CorretorMock }) {
             </div>
             <div style={{ padding: "16px 20px" }}>
               {[
-                { icon: "📱", val: dados.whatsapp },
+                { icon: "📱", val: formatWhatsapp(dados.whatsapp) },
                 { icon: "✉", val: dados.email },
                 { icon: "⭐", val: dados.especialidade },
               ].filter((r) => r.val).map((row) => (
@@ -129,16 +190,23 @@ function PerfilForm({ usuario }: { usuario: CorretorMock }) {
                     <div style={{ fontSize: "12px", color: "var(--neutral-400)", marginTop: "2px", fontFamily: "var(--font-sans)" }}>{item.sub}</div>
                   </div>
                   {item.acao && (
-                    <button onClick={() => mostrar("Enviamos um link para " + dados.emailAcesso)} style={{ padding: "7px 14px", border: "1px solid var(--neutral-200)", borderRadius: "8px", background: "none", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, color: "var(--neutral-600)", cursor: "pointer" }}>{item.acao}</button>
+                    <button onClick={() => setTrocandoSenha((v) => !v)} style={{ padding: "7px 14px", border: "1px solid var(--neutral-200)", borderRadius: "8px", background: "none", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, color: "var(--neutral-600)", cursor: "pointer" }}>{item.acao}</button>
                   )}
                 </div>
               ))}
+              {trocandoSenha && (
+                <div style={{ padding: "14px 0", borderBottom: "1px solid var(--neutral-100)", display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <input type="password" style={fieldInput} placeholder="Nova senha (mín. 8 caracteres)" value={novaSenha} onChange={(e) => setNovaSenha(e.target.value)} autoComplete="new-password" />
+                  <input type="password" style={fieldInput} placeholder="Repita a nova senha" value={confirmaSenha} onChange={(e) => setConfirmaSenha(e.target.value)} autoComplete="new-password" />
+                  <button onClick={salvarSenha} style={{ ...btnPrimary, padding: "10px" }}>Salvar nova senha</button>
+                </div>
+              )}
               <div style={{ ...fieldHint, padding: "10px 0 14px" }}>Para trocar o e-mail de acesso ou o papel, fale com um administrador.</div>
             </div>
           </div>
 
-          <button id="topbar-salvar" onClick={() => mostrar("Perfil atualizado com sucesso!")} style={{ ...btnPrimary, width: "100%" }}>
-            Salvar alterações
+          <button id="topbar-salvar" onClick={salvar} disabled={salvando} style={{ ...btnPrimary, width: "100%", opacity: salvando ? 0.7 : 1 }}>
+            {salvando ? "Salvando..." : "Salvar alterações"}
           </button>
         </div>
       </div>

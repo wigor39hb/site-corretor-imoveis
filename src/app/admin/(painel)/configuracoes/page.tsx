@@ -5,7 +5,7 @@ import { useSessao } from "@/context/SessaoContext";
 import { SITE } from "@/lib/site";
 import {
   card, cardHeader, cardBody, cardTitle, cardSub, fieldGroup, fieldLabel, fieldInput, fieldHint,
-  btnPrimary, btnOutline, Obrigatorio, AcessoRestrito, useToast,
+  btnPrimary, btnOutline, Obrigatorio, AcessoRestrito, useToast, CampoWhatsapp,
 } from "@/components/admin/ui";
 
 // Valores iniciais de exemplo. Na etapa do banco, tudo isso é lido e salvo lá.
@@ -30,6 +30,7 @@ export default function AdminConfiguracoesPage() {
   const { toast, mostrar } = useToast();
   const [numeros, setNumeros] = useState(numerosIniciais);
   const [depoimentos, setDepoimentos] = useState(depoimentosIniciais);
+  const [whatsapp, setWhatsapp] = useState(SITE.whatsapp);
 
   if (!isAdmin) return <AcessoRestrito />;
 
@@ -154,8 +155,8 @@ export default function AdminConfiguracoesPage() {
             <div style={{ padding: "20px" }}>
               <div style={fieldGroup}>
                 <label style={fieldLabel}>WhatsApp da imobiliária <Obrigatorio /></label>
-                <input type="text" style={fieldInput} defaultValue={SITE.whatsapp} />
-                <div style={fieldHint}>Só números, com 55 + DDD. Recebe os contatos que não são de um imóvel específico.</div>
+                <CampoWhatsapp valor={whatsapp} onChange={setWhatsapp} />
+                <div style={fieldHint}>DDD + número. Recebe os contatos que não são de um imóvel específico.</div>
               </div>
               <div style={fieldGroup}>
                 <label style={fieldLabel}>E-mail</label>
