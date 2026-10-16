@@ -19,7 +19,7 @@ export default async function AdminLayout({
 
   const { data: perfil } = await supabase
     .from("perfis")
-    .select("id, nome, creci, especialidade, whatsapp, email, bio, instagram, papel, ativo")
+    .select("id, nome, creci, especialidade, whatsapp, email, foto_url, bio, instagram, papel, ativo")
     .eq("id", user.id)
     .single();
 
@@ -37,6 +37,7 @@ export default async function AdminLayout({
     ativo: perfil.ativo,
     bio: perfil.bio ?? "",
     instagram: perfil.instagram ?? "",
+    fotoUrl: perfil.foto_url,
   };
 
   return (

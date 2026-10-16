@@ -283,5 +283,13 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
   - o layout do painel lê o usuário logado e o perfil dele na tabela `perfis` e passa para o `SessaoContext` (a caixa "Teste: ver painel como" saiu);
   - conta desativada não entra (aviso no login) e, se for desativada logada, vê a tela "Conta desativada";
   - as demais telas ainda usam os dados de exemplo até serem ligadas ao banco (o admin vê todos os exemplos).
-- [ ] 6. Ligar as telas do painel ao banco, uma por uma (etapa 3).
+- [ ] 6. Ligar as telas do painel ao banco, uma por uma (etapa 3):
+  - [x] **Meu perfil** (16/10): salva os dados no banco; troca de senha no card "Acesso" (mín. 8 caracteres); **foto de perfil** cortada em quadrado no navegador (600×600, WebP), salva na hora em `perfis/<id>/` e a antiga é apagada do Storage; foto aparece também no menu lateral (`Avatar` em `ui.tsx`).
+  - [x] **Campo de WhatsApp padronizado** (`CampoWhatsapp` em `ui.tsx`): "+55" fixo, máscara `(11) 99999-9999`; no banco sempre só dígitos `5511999999999`. Usado em Meu perfil, Corretores e Configurações.
+  - Avisos de erro em vermelho: `mostrar(texto, true)`.
+  - [ ] Configurações do site
+  - [ ] Corretores
+  - [ ] Imóveis
+  - [ ] Empreendimentos
+  - [ ] Fotos de imóveis/empreendimentos (3 versões)
 - Mais tarde: a conta do dono da KL (admin) e as dos corretores serão criadas pela tela Corretores do painel.

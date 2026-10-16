@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { useSessao } from "@/context/SessaoContext";
+import { useSessao, type UsuarioSessao } from "@/context/SessaoContext";
+import { BUCKET_FOTOS, TAMANHO_MAX_ARQUIVO, comprimirQuadrado, apagarArquivo } from "@/lib/helpers/imagem";
 import { formatWhatsapp, whatsappValido } from "@/lib/helpers/formatters";
 import { papelLabel, type CorretorMock } from "@/lib/mock/corretores";
 import {
   card, cardHeader, cardBody, cardTitle, cardSub, fieldGroup, fieldLabel, fieldInput, fieldHint,
-  btnPrimary, btnOutline, Obrigatorio, useToast, iniciais, CampoWhatsapp,
+  btnPrimary, btnOutline, Obrigatorio, useToast, CampoWhatsapp, Avatar,
 } from "@/components/admin/ui";
 
 export default function AdminPerfilPage() {
@@ -16,7 +17,7 @@ export default function AdminPerfilPage() {
   return <PerfilForm usuario={usuario} />;
 }
 
-function PerfilForm({ usuario }: { usuario: CorretorMock }) {
+function PerfilForm({ usuario }: { usuario: UsuarioSessao }) {
   const { toast, mostrar } = useToast();
   const router = useRouter();
   const [dados, setDados] = useState(usuario);
@@ -24,6 +25,63 @@ function PerfilForm({ usuario }: { usuario: CorretorMock }) {
   const [trocandoSenha, setTrocandoSenha] = useState(false);
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmaSenha, setConfirmaSenha] = useState("");
+  const [fotoUrl, setFotoUrl] = useState(usuario.fotoUrl);
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const inputFoto = useRef<HTMLInputElement>(null);
+
+  // A foto é salva na hora, sem precisar clicar em "Salvar alterações".
+  async function trocarFoto(arquivo: File | undefined) {
+    if (!arquivo) return;
+    if (!arquivo.type.startsWith("image/")) {
+      mostrar("Escolha um arquivo de imagem (JPG, PNG ou WebP).", true);
+      return;
+    }
+    if (arquivo.size > TAMANHO_MAX_ARQUIVO) {
+      mostrar("Imagem muito grande. O limite é 15 MB.", true);
+      return;
+    }
+    setEnviandoFoto(true);
+    try {
+      const imagem = await comprimirQuadrado(arquivo);
+      const supabase = createClient();
+      const caminho = `perfis/${usuario.id}/${Date.now()}.webp`;
+      const { error: erroEnvio } = await supabase.storage
+        .from(BUCKET_FOTOS)
+        .upload(caminho, imagem, { contentType: "image/webp", cacheControl: "31536000" });
+      if (erroEnvio) throw erroEnvio;
+      const { data } = supabase.storage.from(BUCKET_FOTOS).getPublicUrl(caminho);
+      const { error: erroPerfil } = await supabase.from("perfis").update({ foto_url: data.publicUrl }).eq("id", usuario.id);
+      if (erroPerfil) {
+        await supabase.storage.from(BUCKET_FOTOS).remove([caminho]);
+        throw erroPerfil;
+      }
+      await apagarArquivo(fotoUrl); // apaga a foto antiga do armazenamento
+      setFotoUrl(data.publicUrl);
+      mostrar("Foto atualizada!");
+      router.refresh();
+    } catch {
+      mostrar("Não foi possível enviar a foto. Tente outra imagem.", true);
+    } finally {
+      setEnviandoFoto(false);
+      if (inputFoto.current) inputFoto.current.value = "";
+    }
+  }
+
+  async function removerFoto() {
+    if (!fotoUrl) return;
+    setEnviandoFoto(true);
+    const { error } = await createClient().from("perfis").update({ foto_url: null }).eq("id", usuario.id);
+    if (error) {
+      setEnviandoFoto(false);
+      mostrar("Não foi possível remover a foto.", true);
+      return;
+    }
+    await apagarArquivo(fotoUrl);
+    setFotoUrl(null);
+    setEnviandoFoto(false);
+    mostrar("Foto removida.");
+    router.refresh();
+  }
 
   const set = <K extends keyof CorretorMock>(campo: K, valor: CorretorMock[K]) =>
     setDados((d) => ({ ...d, [campo]: valor }));
@@ -96,13 +154,16 @@ function PerfilForm({ usuario }: { usuario: CorretorMock }) {
             </div>
             <div style={cardBody}>
               <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
-                <div style={{ width: "96px", height: "96px", borderRadius: "50%", background: "linear-gradient(135deg,var(--navy-700),var(--navy-500))", border: "3px solid var(--gold-500)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "36px", fontWeight: 700, color: "var(--gold-400)", fontFamily: "var(--font-serif)", flexShrink: 0 }}>
-                  {iniciais(dados.nome)}
-                </div>
+                <Avatar nome={dados.nome} fotoUrl={fotoUrl} tamanho={96} style={{ background: "linear-gradient(135deg,var(--navy-700),var(--navy-500))", border: "3px solid var(--gold-500)", fontSize: "36px", fontWeight: 700, color: "var(--gold-400)", fontFamily: "var(--font-serif)" }} />
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  <button style={{ ...btnPrimary, padding: "9px 18px" }}>📸 Alterar foto</button>
-                  <button style={{ ...btnOutline, padding: "9px 18px", color: "var(--neutral-400)" }}>Remover foto</button>
-                  <div style={{ fontSize: "12px", color: "var(--neutral-400)", fontFamily: "var(--font-sans)" }}>JPG ou PNG, mín. 400×400px, até 5MB</div>
+                  <input ref={inputFoto} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={(e) => trocarFoto(e.target.files?.[0])} />
+                  <button onClick={() => inputFoto.current?.click()} disabled={enviandoFoto} style={{ ...btnPrimary, padding: "9px 18px", opacity: enviandoFoto ? 0.7 : 1 }}>
+                    {enviandoFoto ? "Enviando..." : "📸 Alterar foto"}
+                  </button>
+                  {fotoUrl && (
+                    <button onClick={removerFoto} disabled={enviandoFoto} style={{ ...btnOutline, padding: "9px 18px", color: "var(--neutral-400)" }}>Remover foto</button>
+                  )}
+                  <div style={{ fontSize: "12px", color: "var(--neutral-400)", fontFamily: "var(--font-sans)" }}>JPG, PNG ou WebP, até 15 MB. A foto é cortada em quadrado, pelo centro.</div>
                 </div>
               </div>
             </div>
@@ -150,7 +211,7 @@ function PerfilForm({ usuario }: { usuario: CorretorMock }) {
           {/* PRÉVIA */}
           <div style={{ background: "var(--navy-900)", borderRadius: "12px", overflow: "hidden", marginBottom: "8px" }}>
             <div style={{ padding: "24px", textAlign: "center", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-              <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: "linear-gradient(135deg,var(--navy-700),var(--navy-500))", border: "2px solid var(--gold-500)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px", fontWeight: 700, color: "var(--gold-400)", fontFamily: "var(--font-serif)", margin: "0 auto 12px" }}>{iniciais(dados.nome)}</div>
+              <Avatar nome={dados.nome} fotoUrl={fotoUrl} tamanho={72} style={{ background: "linear-gradient(135deg,var(--navy-700),var(--navy-500))", border: "2px solid var(--gold-500)", fontSize: "28px", fontWeight: 700, color: "var(--gold-400)", fontFamily: "var(--font-serif)", margin: "0 auto 12px" }} />
               <div style={{ fontFamily: "var(--font-serif)", fontSize: "18px", fontWeight: 600, color: "#fff" }}>{dados.nome}</div>
               <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", marginTop: "4px", fontFamily: "var(--font-sans)" }}>{dados.creci}</div>
             </div>

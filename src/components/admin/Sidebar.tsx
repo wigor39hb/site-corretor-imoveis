@@ -6,7 +6,7 @@ import { useSidebar } from "@/context/SidebarContext";
 import { useSessao } from "@/context/SessaoContext";
 import { SITE } from "@/lib/site";
 import { papelLabel } from "@/lib/mock/corretores";
-import { iniciais } from "@/components/admin/ui";
+import { Avatar } from "@/components/admin/ui";
 import { LayoutDashboard, Home, Building2, User, Users, Settings, LogOut, X } from "lucide-react";
 
 const navItems = [
@@ -159,24 +159,18 @@ export default function Sidebar() {
               marginBottom: "12px",
             }}
           >
-            <div
+            <Avatar
+              nome={usuario.nome}
+              fotoUrl={usuario.fotoUrl}
+              tamanho={36}
               style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "50%",
                 background: "rgba(201,169,110,0.15)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
                 color: "var(--gold-500)",
                 fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: 600,
-                flexShrink: 0,
               }}
-            >
-              {iniciais(usuario.nome)}
-            </div>
+            />
             <div>
               <div
                 style={{

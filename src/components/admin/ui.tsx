@@ -108,6 +108,20 @@ export function ConfirmDialog({ titulo, texto, confirmar, onConfirmar, onCancela
   );
 }
 
+// Círculo com a foto da pessoa ou, sem foto, as iniciais do nome.
+export function Avatar({ nome, fotoUrl, tamanho, style }: { nome: string; fotoUrl: string | null; tamanho: number; style?: React.CSSProperties }) {
+  return (
+    <div style={{ width: tamanho, height: tamanho, borderRadius: "50%", overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", ...style }}>
+      {fotoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={fotoUrl} alt={nome} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      ) : (
+        iniciais(nome)
+      )}
+    </div>
+  );
+}
+
 export function iniciais(nome: string) {
   return nome.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
 }

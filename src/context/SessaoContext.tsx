@@ -6,7 +6,7 @@ import type { CorretorMock } from "@/lib/mock/corretores";
 // Usuário logado no painel, lido do banco (tabela perfis) pelo layout do painel.
 // Usa o mesmo formato dos corretores de exemplo para as telas que ainda não
 // foram ligadas ao banco continuarem funcionando.
-export type UsuarioSessao = CorretorMock;
+export type UsuarioSessao = CorretorMock & { fotoUrl: string | null };
 
 interface SessaoContextType {
   usuario: UsuarioSessao;
