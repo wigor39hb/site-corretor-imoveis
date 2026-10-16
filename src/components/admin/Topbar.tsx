@@ -1,8 +1,9 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useSidebar } from "@/context/SidebarContext";
+import { useSessao } from "@/context/SessaoContext";
 import { Menu, Bell } from "lucide-react";
 
 type PageMeta = { title: string; breadcrumb: string };
@@ -15,6 +16,10 @@ function getPageMeta(pathname: string): PageMeta {
   if (pathname === "/admin/empreendimentos") return { title: "Empreendimentos", breadcrumb: "Empreendimentos" };
   if (pathname === "/admin/empreendimentos/novo") return { title: "Novo Empreendimento", breadcrumb: "Empreendimentos / Novo" };
   if (pathname.startsWith("/admin/empreendimentos/") && pathname.endsWith("/editar")) return { title: "Editar Empreendimento", breadcrumb: "Empreendimentos / Editar" };
+  if (pathname === "/admin/corretores") return { title: "Corretores", breadcrumb: "Corretores" };
+  if (pathname === "/admin/corretores/novo") return { title: "Novo Corretor", breadcrumb: "Corretores / Novo" };
+  if (pathname.startsWith("/admin/corretores/") && pathname.endsWith("/editar")) return { title: "Editar Corretor", breadcrumb: "Corretores / Editar" };
+  if (pathname === "/admin/configuracoes") return { title: "Configurações do site", breadcrumb: "Configurações" };
   if (pathname === "/admin/perfil") return { title: "Meu Perfil", breadcrumb: "Perfil" };
   return { title: "Admin", breadcrumb: "Admin" };
 }
@@ -23,7 +28,7 @@ type TopbarAction =
   | { type: "link"; href: string; label: string; variant: "primary" | "outline" }
   | { type: "button"; id: string; label: string; variant: "primary" | "outline" };
 
-function getActions(pathname: string): TopbarAction[] {
+function getActions(pathname: string, isAdmin: boolean): TopbarAction[] {
   if (pathname === "/admin/imoveis") {
     return [{ type: "link", href: "/admin/imoveis/novo", label: "+ Novo Imóvel", variant: "primary" }];
   }
@@ -54,9 +59,30 @@ function getActions(pathname: string): TopbarAction[] {
       { type: "button", id: "topbar-publicar", label: "Salvar alterações", variant: "primary" },
     ];
   }
+  if (pathname === "/admin/corretores" && isAdmin) {
+    return [{ type: "link", href: "/admin/corretores/novo", label: "+ Novo Corretor", variant: "primary" }];
+  }
+  if (pathname === "/admin/corretores/novo" && isAdmin) {
+    return [
+      { type: "link", href: "/admin/corretores", label: "Cancelar", variant: "outline" },
+      { type: "button", id: "topbar-salvar", label: "Cadastrar corretor", variant: "primary" },
+    ];
+  }
+  if (pathname.startsWith("/admin/corretores/") && pathname.endsWith("/editar") && isAdmin) {
+    return [
+      { type: "link", href: "/admin/corretores", label: "Cancelar", variant: "outline" },
+      { type: "button", id: "topbar-salvar", label: "Salvar alterações", variant: "primary" },
+    ];
+  }
+  if (pathname === "/admin/configuracoes" && isAdmin) {
+    return [
+      { type: "link", href: "/", label: "↗ Ver site", variant: "outline" },
+      { type: "button", id: "topbar-salvar", label: "Salvar alterações", variant: "primary" },
+    ];
+  }
   if (pathname === "/admin/perfil") {
     return [
-      { type: "link", href: "/sobre", label: "↗ Ver no site", variant: "outline" },
+      { type: "link", href: "/contato#equipe", label: "↗ Ver no site", variant: "outline" },
       { type: "button", id: "topbar-salvar", label: "Salvar alterações", variant: "primary" },
     ];
   }
@@ -84,7 +110,8 @@ export default function Topbar() {
   const { toggle } = useSidebar();
   const pathname = usePathname();
   const page = getPageMeta(pathname);
-  const actions = getActions(pathname);
+  const { isAdmin } = useSessao();
+  const actions = getActions(pathname, isAdmin);
 
   const handleBtnClick = (id: string) => {
     const el = document.getElementById(id);

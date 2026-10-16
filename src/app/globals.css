@@ -623,6 +623,7 @@ body { overflow-x: hidden; }
 .bio-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
 .dep-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .esp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.equipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
 .emp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; }
 .diffs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .units-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SITE } from "@/lib/site";
 
 const footerLinks = [
   { href: "/imoveis", label: "Imóveis" },
@@ -20,10 +21,10 @@ export default function Footer() {
         {/* Logo */}
         <div>
           <div style={{ fontFamily: "var(--font-serif)", fontSize: "20px", fontWeight: 700, color: "#fff" }}>
-            João Corretor
+            {SITE.nomeCurto}
           </div>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold-400)", marginTop: "4px" }}>
-            Corretor de Imóveis · São Paulo
+            Imobiliários · São Paulo
           </div>
         </div>
 
@@ -46,10 +47,10 @@ export default function Footer() {
         flexWrap: "wrap", gap: "8px",
       }}>
         <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.05em" }}>
-          © {new Date().getFullYear()} João Corretor. Todos os direitos reservados.
+          © {new Date().getFullYear()} {SITE.nome}. Todos os direitos reservados.
         </span>
         <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--gold-500)", opacity: 0.6 }}>
-          CRECI-SP 000000-F
+          {SITE.creci}
         </span>
       </div>
     </footer>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
+import { SITE } from "@/lib/site";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -24,8 +25,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Corretor de Imóveis",
-    template: "%s | Corretor de Imóveis",
+    default: SITE.nome,
+    template: `%s | ${SITE.nome}`,
   },
   description: "Imóveis de alto padrão com atendimento personalizado.",
 };

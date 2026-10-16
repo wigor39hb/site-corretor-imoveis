@@ -45,13 +45,13 @@ export default function Navbar() {
             {link.label}
           </Link>
         ))}
-        <a
-          href="https://wa.me/5511999999999"
+        <Link
+          href="/contato"
           className="nav-mobile-cta"
           onClick={() => { setMenuOpen(false); document.body.style.overflow = ""; }}
         >
-          Fale Comigo
-        </a>
+          Fale Conosco
+        </Link>
       </div>
 
       {/* Navbar */}
@@ -73,10 +73,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" style={{ textDecoration: "none" }}>
           <div style={{ fontFamily: "var(--font-serif)", fontSize: "22px", fontWeight: 700, color: "#fff", lineHeight: 1, letterSpacing: "0.02em" }}>
-            João Corretor
+            KL Investimentos
           </div>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "var(--gold-400)", letterSpacing: "0.18em", textTransform: "uppercase", marginTop: "3px" }}>
-            Corretor de Imóveis
+            Imobiliários
           </div>
         </Link>
 
@@ -92,7 +92,7 @@ export default function Navbar() {
             </Link>
           ))}
           <Link href="/contato" className="nav-cta nav-desktop-cta">
-            Fale Comigo
+            Fale Conosco
           </Link>
         </nav>
 

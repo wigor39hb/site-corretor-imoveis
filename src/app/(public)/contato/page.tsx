@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { SITE } from "@/lib/site";
+import { corretores } from "@/lib/mock/corretores";
+import { whatsappLink } from "@/lib/helpers/whatsapp";
 
 const WA_SVG = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -40,13 +43,13 @@ export default function ContatoPage() {
           </div>
           <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold-400)", marginBottom: "20px", opacity: 0, animation: "fadeUp 0.7s var(--ease-luxury) 0.1s forwards" }}>
             <span style={{ display: "block", width: "32px", height: "1px", background: "var(--gold-500)" }} />
-            Fale Comigo
+            Fale Conosco
           </div>
           <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(40px,6vw,72px)", fontWeight: 700, color: "#fff", lineHeight: 1.05, opacity: 0, animation: "fadeUp 0.9s var(--ease-luxury) 0.2s forwards" }}>
             Entre em <em style={{ fontStyle: "italic", color: "var(--gold-400)" }}>Contato</em>
           </h1>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "16px", fontWeight: 300, color: "rgba(255,255,255,0.5)", marginTop: "20px", maxWidth: "520px", lineHeight: 1.8, opacity: 0, animation: "fadeUp 0.9s var(--ease-luxury) 0.35s forwards" }}>
-            Estou aqui para ajudar você a encontrar o imóvel ideal. Respondo em até 2 horas em dias úteis.
+            Nossa equipe está pronta para ajudar você a encontrar o imóvel ideal. Respondemos em até 2 horas em dias úteis.
           </p>
         </div>
       </div>
@@ -62,7 +65,7 @@ export default function ContatoPage() {
               Vamos <em style={{ fontStyle: "italic", color: "var(--navy-700)" }}>conversar</em>
             </h2>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "15px", fontWeight: 300, lineHeight: 1.9, color: "var(--neutral-600)", marginBottom: "40px" }}>
-              Preencha o formulário abaixo com os detalhes da sua busca ou dúvida. Responderei pessoalmente o quanto antes.
+              Preencha o formulário abaixo com os detalhes da sua busca ou dúvida. Nossa equipe responderá o quanto antes.
             </p>
 
             {!submitted ? (
@@ -129,7 +132,7 @@ export default function ContatoPage() {
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M20 6L9 17l-5-5"/></svg>
                 </div>
                 <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "28px", fontWeight: 700, color: "var(--navy-900)" }}>Mensagem enviada!</h3>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", fontWeight: 300, color: "var(--neutral-600)", lineHeight: 1.8, maxWidth: "360px" }}>Obrigado pelo contato. Responderei pessoalmente em até 2 horas em dias úteis.</p>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", fontWeight: 300, color: "var(--neutral-600)", lineHeight: 1.8, maxWidth: "360px" }}>Obrigado pelo contato. Nossa equipe responderá em até 2 horas em dias úteis.</p>
               </div>
             )}
           </div>
@@ -143,9 +146,8 @@ export default function ContatoPage() {
               <div style={{ position: "relative", zIndex: 1 }}>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold-400)", marginBottom: "12px" }}>Resposta imediata</div>
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: "22px", fontWeight: 700, color: "#fff", lineHeight: 1.3, marginBottom: "8px" }}>Prefere pelo WhatsApp?</div>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 300, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, marginBottom: "24px" }}>Atendimento rápido e direto. Estou disponível de segunda a sábado, das 8h às 20h.</p>
-                <a href="https://wa.me/5511999999999" className="btn-whatsapp" style={{ width: "100%", display: "flex" }}><WA_SVG /> Chamar no WhatsApp</a>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "rgba(255,255,255,0.3)", textAlign: "center", marginTop: "14px", letterSpacing: "0.05em" }}>(11) 9 9999-9999</div>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 300, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, marginBottom: "24px" }}>Atendimento rápido e direto. Escolha um dos nossos corretores e chame no WhatsApp.</p>
+                <a href="#equipe" className="btn-whatsapp" style={{ width: "100%", display: "flex" }}><WA_SVG /> Ver corretores</a>
               </div>
             </div>
 
@@ -154,7 +156,7 @@ export default function ContatoPage() {
               <div style={{ fontFamily: "var(--font-serif)", fontSize: "16px", fontWeight: 600, color: "var(--navy-900)", marginBottom: "24px", paddingBottom: "16px", borderBottom: "1px solid var(--neutral-200)" }}>Outras formas de contato</div>
               {[
                 { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.81 19.79 19.79 0 01.07 2.18 2 2 0 012.06 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>, label: "Telefone", value: "(11) 9 9999-9999", href: "tel:+5511999999999" },
-                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label: "E-mail", value: "joao@corretor.com.br", href: "mailto:joao@corretor.com.br" },
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label: "E-mail", value: SITE.email, href: `mailto:${SITE.email}` },
                 { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: "Horário de atendimento", value: "Seg – Sex: 8h às 19h / Sábado: 9h às 14h", href: null },
                 { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>, label: "Área de atuação", value: "São Paulo – SP / Zona Sul, Oeste e Centro Expandido", href: null },
               ].map(({ icon, label, value, href }) => (
@@ -175,9 +177,9 @@ export default function ContatoPage() {
               <div style={{ fontFamily: "var(--font-serif)", fontSize: "15px", fontWeight: 600, color: "var(--navy-900)", marginBottom: "18px" }}>Redes Sociais</div>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {[
-                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>, name: "Instagram", handle: "@joao.corretor" },
-                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>, name: "LinkedIn", handle: "João Corretor" },
-                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#C9A96E"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, name: "Facebook", handle: "João Corretor Imóveis" },
+                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>, name: "Instagram", handle: SITE.nomeCurto },
+                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>, name: "LinkedIn", handle: SITE.nome },
+                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#C9A96E"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, name: "Facebook", handle: SITE.nome },
                 ].map(({ icon, name, handle }) => (
                   <a key={name} href="#" className="social-link">
                     <div style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</div>
@@ -193,11 +195,36 @@ export default function ContatoPage() {
         </div>
       </section>
 
+      {/* EQUIPE */}
+      <section id="equipe" style={{ background: "var(--neutral-50)", scrollMarginTop: "80px" }} className="section-padded">
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "60px" }}>
+            <div className="section-tag reveal" style={{ justifyContent: "center", marginBottom: "12px" }}>Nossa Equipe</div>
+            <h2 className="reveal reveal-delay-1" style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(28px,3.5vw,40px)", fontWeight: 700, lineHeight: 1.15, color: "var(--navy-900)" }}>
+              Fale direto com um <em style={{ fontStyle: "italic", color: "var(--navy-700)" }}>corretor</em>
+            </h2>
+          </div>
+          <div className="equipe-grid">
+            {corretores.map((c, i) => (
+              <div key={c.id} className={`esp-card reveal${i % 3 === 1 ? " reveal-delay-1" : i % 3 === 2 ? " reveal-delay-2" : ""}`}>
+                <div style={{ width: "88px", height: "88px", margin: "0 auto 20px", borderRadius: "50%", background: "linear-gradient(135deg,var(--navy-700),var(--navy-800))", border: "2px solid var(--gold-500)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="36" height="36" fill="none" stroke="white" strokeWidth="1.2" viewBox="0 0 24 24" style={{ opacity: 0.5 }}><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                </div>
+                <div style={{ fontFamily: "var(--font-serif)", fontSize: "20px", fontWeight: 600, color: "var(--navy-900)", marginBottom: "4px" }}>{c.nome}</div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: "11px", letterSpacing: "0.1em", color: "var(--gold-500)", marginBottom: "12px" }}>{c.creci}</div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 300, color: "var(--neutral-600)", marginBottom: "24px" }}>{c.especialidade}</div>
+                <a href={whatsappLink(c.whatsapp, `Olá, ${c.nome.split(" ")[0]}! Vim pelo site da ${SITE.nomeCurto}.`)} target="_blank" rel="noopener noreferrer" className="btn-whatsapp" style={{ width: "100%", display: "flex" }}><WA_SVG /> WhatsApp</a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* MAP */}
       <section style={{ background: "#fff" }} className="map-bottom-padded">
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <div style={{ marginBottom: "32px" }} className="reveal">
-            <div className="section-tag" style={{ marginBottom: "12px" }}>Onde atuo</div>
+            <div className="section-tag" style={{ marginBottom: "12px" }}>Onde atuamos</div>
             <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(28px,3.5vw,40px)", fontWeight: 700, lineHeight: 1.15, color: "var(--navy-900)" }}>
               Área de <em style={{ fontStyle: "italic", color: "var(--navy-700)" }}>Atuação</em>
             </h2>
@@ -234,11 +261,11 @@ export default function ContatoPage() {
               Pronto para encontrar<br />o imóvel <em style={{ fontStyle: "italic", color: "var(--gold-400)" }}>perfeito?</em>
             </h2>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "15px", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.55)", maxWidth: "480px" }}>
-              Cada família tem uma história única. Deixe-me ajudar a escrever o próximo capítulo da sua.
+              Cada família tem uma história única. Deixe a nossa equipe ajudar a escrever o próximo capítulo da sua.
             </p>
           </div>
           <div className="reveal reveal-delay-2" style={{ display: "flex", flexDirection: "column", gap: "12px", minWidth: "220px" }}>
-            <a href="https://wa.me/5511999999999" className="btn-whatsapp"><WA_SVG /> WhatsApp Direto</a>
+            <a href="#equipe" className="btn-whatsapp"><WA_SVG /> Falar com um corretor</a>
             <Link href="/imoveis" className="btn-outline-gold" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", textDecoration: "none" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               Ver Imóveis

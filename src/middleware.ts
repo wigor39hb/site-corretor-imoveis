@@ -1,8 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { LOGIN_SIMULADO } from "@/lib/auth-config";
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request });
+  if (LOGIN_SIMULADO) return response;
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import CorretorResponsavel from "@/components/public/CorretorResponsavel";
+import { getCorretor } from "@/lib/mock/corretores";
+import { whatsappLink } from "@/lib/helpers/whatsapp";
 
 const WA_SVG = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -18,6 +21,7 @@ const thumbBgs = [
 
 export default function ImovelDetalhePage() {
   const [activeThumb, setActiveThumb] = useState(0);
+  const corretor = getCorretor("1");
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -149,20 +153,12 @@ export default function ImovelDetalhePage() {
               ))}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <a href="https://wa.me/5511999999999" className="btn-whatsapp"><WA_SVG /> Falar no WhatsApp</a>
+              <a href={whatsappLink(corretor.whatsapp, "Olá! Tenho interesse no imóvel Penthouse Jardins que vi no site.")} target="_blank" rel="noopener noreferrer" className="btn-whatsapp"><WA_SVG /> Falar no WhatsApp</a>
               <Link href="/contato" className="btn-primary" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "16px", textDecoration: "none" }}>Solicitar Visita</Link>
-              <a href="mailto:joao@corretor.com" className="btn-outline">Enviar E-mail</a>
+              <a href={`mailto:${corretor.email}`} className="btn-outline">Enviar E-mail</a>
             </div>
           </div>
-          <div style={{ background: "var(--navy-900)", padding: "24px", display: "flex", alignItems: "center", gap: "16px" }} className="reveal reveal-delay-1">
-            <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: "rgba(201,169,110,0.15)", border: "1px solid rgba(201,169,110,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <svg width="24" height="24" fill="none" stroke="white" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            </div>
-            <div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: "16px", fontWeight: 600, color: "#fff", marginBottom: "3px" }}>João Corretor</div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--gold-400)", letterSpacing: "0.1em" }}>Corretor CRECI-SP 000000-F</div>
-            </div>
-          </div>
+          <CorretorResponsavel corretor={corretor} />
         </div>
       </div>
 

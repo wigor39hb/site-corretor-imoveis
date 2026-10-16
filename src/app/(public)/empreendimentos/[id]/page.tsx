@@ -2,6 +2,9 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import CorretorResponsavel from "@/components/public/CorretorResponsavel";
+import { getCorretor } from "@/lib/mock/corretores";
+import { whatsappLink } from "@/lib/helpers/whatsapp";
 
 const WA_SVG = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -26,6 +29,9 @@ const units = [
 ];
 
 export default function EmpreendimentoDetalhePage() {
+  const corretor = getCorretor("2");
+  const waLink = whatsappLink(corretor.whatsapp, "Olá! Tenho interesse no empreendimento Edifício Jardins Premium que vi no site.");
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } }),
@@ -134,18 +140,10 @@ export default function EmpreendimentoDetalhePage() {
               </div>
             ))}
             <div style={{ height: "1px", background: "var(--neutral-200)", margin: "20px 0" }} />
-            <a href="https://wa.me/5511999999999" className="btn-whatsapp" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "10px" }}><WA_SVG /> Tenho Interesse</a>
+            <a href={waLink} target="_blank" rel="noopener noreferrer" className="btn-whatsapp" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "10px" }}><WA_SVG /> Tenho Interesse</a>
             <Link href="/contato" className="btn-primary" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "16px", textDecoration: "none" }}>Solicitar Material</Link>
           </div>
-          <div style={{ background: "var(--navy-900)", padding: "20px", display: "flex", alignItems: "center", gap: "14px" }} className="reveal reveal-delay-1">
-            <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: "rgba(201,169,110,0.15)", border: "1px solid rgba(201,169,110,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <svg width="22" height="22" fill="none" stroke="white" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            </div>
-            <div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: "15px", fontWeight: 600, color: "#fff", marginBottom: "2px" }}>João Corretor</div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "var(--gold-400)", letterSpacing: "0.1em" }}>CRECI-SP 000000-F</div>
-            </div>
-          </div>
+          <CorretorResponsavel corretor={corretor} />
         </div>
       </div>
 
@@ -162,7 +160,7 @@ export default function EmpreendimentoDetalhePage() {
             </p>
           </div>
           <div className="reveal reveal-delay-1" style={{ display: "flex", flexDirection: "column", gap: "12px", minWidth: "220px" }}>
-            <a href="https://wa.me/5511999999999" className="btn-whatsapp"><WA_SVG /> WhatsApp</a>
+            <a href={waLink} target="_blank" rel="noopener noreferrer" className="btn-whatsapp"><WA_SVG /> WhatsApp</a>
             <Link href="/contato" className="btn-outline-gold" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", textDecoration: "none" }}>Enviar Mensagem</Link>
           </div>
         </div>

@@ -1,25 +1,17 @@
-import { createClient } from "@/lib/supabase/server";
+import { imoveisMock, empreendimentosMock } from "@/lib/mock/publicacoes";
+import { corretores } from "@/lib/mock/corretores";
 import Card, { CardHeader, CardBody } from "@/components/shared/Card";
 import KPICard from "@/components/admin/KPICard";
-import { Home, Building2, CheckCircle, TrendingUp } from "lucide-react";
+import { Home, Building2, CheckCircle, Users } from "lucide-react";
 
 export const metadata = { title: "Dashboard" };
 
-export default async function AdminDashboardPage() {
-  const supabase = await createClient();
-
-  const [{ count: totalImoveis }, { count: totalEmpreendimentos }] =
-    await Promise.all([
-      supabase.from("imoveis").select("*", { count: "exact", head: true }),
-      supabase
-        .from("empreendimentos")
-        .select("*", { count: "exact", head: true }),
-    ]);
-
-  const { count: disponiveis } = await supabase
-    .from("imoveis")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "disponivel");
+export default function AdminDashboardPage() {
+  // Provisório: contagens dos dados de exemplo. Na etapa do banco, vêm de lá.
+  const totalImoveis = imoveisMock.length;
+  const totalEmpreendimentos = empreendimentosMock.length;
+  const disponiveis = imoveisMock.filter((im) => im.status === "disponivel").length;
+  const corretoresAtivos = corretores.filter((c) => c.ativo).length;
 
   return (
     <div style={{ maxWidth: "1200px" }}>
@@ -33,26 +25,26 @@ export default async function AdminDashboardPage() {
       >
         <KPICard
           title="Total de Imóveis"
-          value={totalImoveis ?? 0}
+          value={totalImoveis}
           icon={<Home size={22} />}
           color="#2D5986"
         />
         <KPICard
           title="Empreendimentos"
-          value={totalEmpreendimentos ?? 0}
+          value={totalEmpreendimentos}
           icon={<Building2 size={22} />}
           color="#C9A96E"
         />
         <KPICard
           title="Disponíveis"
-          value={disponiveis ?? 0}
+          value={disponiveis}
           icon={<CheckCircle size={22} />}
           color="#3DAA6F"
         />
         <KPICard
-          title="Destaques"
-          value={0}
-          icon={<TrendingUp size={22} />}
+          title="Corretores ativos"
+          value={corretoresAtivos}
+          icon={<Users size={22} />}
           color="#D4900A"
         />
       </div>
@@ -69,7 +61,7 @@ export default async function AdminDashboardPage() {
             }}
           >
             Bem-vindo ao painel. Use o menu lateral para gerenciar imóveis,
-            empreendimentos e seu perfil.
+            empreendimentos, corretores e seu perfil.
           </p>
         </CardBody>
       </Card>

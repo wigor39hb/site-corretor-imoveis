@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import { useSessao } from "@/context/SessaoContext";
+import { empreendimentosMock } from "@/lib/mock/publicacoes";
+
+type Empreendimento = (typeof empreendimentosMock)[number];
+import CorretorResponsavelCampo, { PublicacaoDeOutroCorretor, PublicacaoNaoEncontrada } from "@/components/admin/CorretorResponsavelCampo";
 
 type Status = "lancamento" | "obras" | "pronto" | "breve";
 
@@ -35,9 +40,9 @@ const Toggle = ({ label, sub, defaultOn = false }: { label: string; sub: string;
   );
 };
 
-export default function AdminEmpreendimentoNovoPage() {
+function EmpreendimentoEditarForm({ emp }: { emp: Empreendimento }) {
   const router = useRouter();
-  const [status, setStatus] = useState<Status>("lancamento");
+  const [status, setStatus] = useState<Status>(emp.status as Status);
   const [diferenciais, setDiferenciais] = useState([
     "🏊 Piscina com borda infinita",
     "🏋 Academia equipada",
@@ -51,7 +56,7 @@ export default function AdminEmpreendimentoNovoPage() {
   const removeDiferencial = (i: number) => setDiferenciais(diferenciais.filter((_, idx) => idx !== i));
   const updateDiferencial = (i: number, val: string) => setDiferenciais(diferenciais.map((d, idx) => idx === i ? val : d));
 
-  const handlePublish = () => {
+  const handleSave = () => {
     setShowToast(true);
     setTimeout(() => { router.push("/admin/empreendimentos"); }, 2000);
   };
@@ -60,47 +65,42 @@ export default function AdminEmpreendimentoNovoPage() {
     <>
       {showToast && (
         <div style={{ position: "fixed", bottom: "32px", right: "32px", background: "var(--navy-900)", color: "#fff", padding: "16px 24px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "12px", fontSize: "14px", zIndex: 200, borderLeft: "4px solid var(--gold-500)", boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}>
-          ✅ <span>Empreendimento publicado com sucesso!</span>
+          ✅ <span>Empreendimento atualizado com sucesso!</span>
         </div>
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "24px", alignItems: "start", maxWidth: "1200px" }} className="admin-form-grid">
 
-        {/* COLUNA PRINCIPAL */}
         <div>
-
-          {/* BÁSICO */}
           <div style={card}>
             <div style={cardHeader}><div style={cardTitle}>Informações básicas</div></div>
             <div style={cardBody}>
               <div style={{ marginBottom: "20px" }}>
                 <label style={fieldLabel}>Nome do empreendimento <span style={{ color: "var(--gold-500)" }}>*</span></label>
-                <input type="text" style={fieldInput} defaultValue="Grand Tower" />
+                <input type="text" style={fieldInput} defaultValue={emp.nome} />
               </div>
               <div style={{ marginBottom: "20px" }}>
                 <label style={fieldLabel}>Descrição completa <span style={{ color: "var(--gold-500)" }}>*</span></label>
-                <textarea style={{ ...fieldInput, resize: "vertical", minHeight: "120px", lineHeight: "1.6" }} defaultValue="O Grand Tower é um empreendimento de alto padrão localizado na Vila Olímpia, um dos bairros mais valorizados de São Paulo." />
+                <textarea style={{ ...fieldInput, resize: "vertical", minHeight: "120px", lineHeight: "1.6" }} defaultValue={`O ${emp.nome} é um empreendimento de alto padrão em ${emp.loc}.`} />
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div><label style={fieldLabel}>Construtora</label><input type="text" style={fieldInput} defaultValue="Construtora Excellence" /></div>
-                <div><label style={fieldLabel}>Ano de entrega</label><input type="text" style={fieldInput} defaultValue="2026" /></div>
+                <div><label style={fieldLabel}>Ano de entrega</label><input type="text" style={fieldInput} defaultValue={String(emp.entrega)} /></div>
               </div>
             </div>
           </div>
 
-          {/* CAPA */}
           <div style={card}>
-            <div style={cardHeader}><div style={cardTitle}>Imagem de capa</div><div style={cardSub}>Aparece no card e no topo da página do empreendimento</div></div>
+            <div style={cardHeader}><div style={cardTitle}>Imagem de capa</div><div style={cardSub}>Aparece no card e no topo da página</div></div>
             <div style={cardBody}>
-              <div style={{ border: "2px dashed var(--neutral-200)", borderRadius: "12px", height: "180px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px", cursor: "pointer" }}>
+              <div style={{ border: "2px dashed var(--neutral-200)", borderRadius: "12px", height: "160px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer" }}>
                 <div style={{ fontSize: "32px" }}>🖼</div>
-                <div style={{ fontSize: "14px", fontWeight: 500, color: "var(--neutral-900)", fontFamily: "var(--font-sans)" }}>Arraste a imagem de capa</div>
-                <div style={{ fontSize: "12px", color: "var(--neutral-400)", fontFamily: "var(--font-sans)" }}>ou <span style={{ color: "var(--gold-500)" }}>clique para selecionar</span> — JPG, PNG até 10MB</div>
+                <div style={{ fontSize: "14px", fontWeight: 500, color: "var(--neutral-900)", fontFamily: "var(--font-sans)" }}>Alterar imagem de capa</div>
+                <div style={{ fontSize: "12px", color: "var(--neutral-400)", fontFamily: "var(--font-sans)" }}>ou <span style={{ color: "var(--gold-500)" }}>clique para selecionar</span></div>
               </div>
             </div>
           </div>
 
-          {/* GALERIA */}
           <div style={card}>
             <div style={cardHeader}><div style={cardTitle}>Galeria de fotos</div></div>
             <div style={cardBody}>
@@ -113,21 +113,19 @@ export default function AdminEmpreendimentoNovoPage() {
             </div>
           </div>
 
-          {/* LOCALIZAÇÃO */}
           <div style={card}>
             <div style={cardHeader}><div style={cardTitle}>Localização</div></div>
             <div style={cardBody}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
-                <div><label style={fieldLabel}>Cidade <span style={{ color: "var(--gold-500)" }}>*</span></label><input type="text" style={fieldInput} defaultValue="São Paulo" /></div>
-                <div><label style={fieldLabel}>Bairro</label><input type="text" style={fieldInput} defaultValue="Vila Olímpia" /></div>
+                <div><label style={fieldLabel}>Cidade <span style={{ color: "var(--gold-500)" }}>*</span></label><input type="text" style={fieldInput} defaultValue={emp.loc.split(", ").slice(-1)[0]} /></div>
+                <div><label style={fieldLabel}>Bairro</label><input type="text" style={fieldInput} defaultValue={emp.loc.split(", ")[0]} /></div>
               </div>
               <div><label style={fieldLabel}>Endereço completo</label><input type="text" style={fieldInput} defaultValue="Av. Brigadeiro Faria Lima, 3900" /></div>
             </div>
           </div>
 
-          {/* DIFERENCIAIS */}
           <div style={card}>
-            <div style={cardHeader}><div style={cardTitle}>Diferenciais</div><div style={cardSub}>Itens que aparecem na seção de destaques do empreendimento</div></div>
+            <div style={cardHeader}><div style={cardTitle}>Diferenciais</div></div>
             <div style={cardBody}>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {diferenciais.map((d, i) => (
@@ -145,12 +143,10 @@ export default function AdminEmpreendimentoNovoPage() {
           </div>
         </div>
 
-        {/* COLUNA LATERAL */}
         <div>
-
-          {/* STATUS */}
+          <CorretorResponsavelCampo corretorIdInicial={emp.corretorId} />
           <div style={{ ...card, marginBottom: "16px" }}>
-            <div style={{ ...cardHeader, padding: "16px 20px" }}><div style={cardTitle}>Status do empreendimento</div></div>
+            <div style={{ ...cardHeader, padding: "16px 20px" }}><div style={cardTitle}>Status</div></div>
             <div style={{ padding: "20px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                 {statusOpts.map((opt) => (
@@ -168,26 +164,24 @@ export default function AdminEmpreendimentoNovoPage() {
             </div>
           </div>
 
-          {/* UNIDADES */}
           <div style={{ ...card, marginBottom: "16px" }}>
             <div style={{ ...cardHeader, padding: "16px 20px" }}><div style={cardTitle}>Unidades</div></div>
             <div style={{ padding: "20px" }}>
               <div style={{ marginBottom: "20px" }}>
                 <label style={fieldLabel}>Total de unidades</label>
-                <input type="number" style={fieldInput} defaultValue={48} min={1} />
+                <input type="number" style={fieldInput} defaultValue={emp.unidades} min={1} />
               </div>
               <div style={{ marginBottom: "20px" }}>
                 <label style={fieldLabel}>Tipologias disponíveis</label>
                 <input type="text" style={fieldInput} defaultValue="2, 3 e 4 suítes" />
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                <div><label style={fieldLabel}>Área mínima (m²)</label><input type="number" style={fieldInput} defaultValue={75} /></div>
-                <div><label style={fieldLabel}>Área máxima (m²)</label><input type="number" style={fieldInput} defaultValue={220} /></div>
+                <div><label style={fieldLabel}>Área mín. (m²)</label><input type="number" style={fieldInput} defaultValue={75} /></div>
+                <div><label style={fieldLabel}>Área máx. (m²)</label><input type="number" style={fieldInput} defaultValue={220} /></div>
               </div>
             </div>
           </div>
 
-          {/* PUBLICAÇÃO */}
           <div style={{ ...card, marginBottom: "16px" }}>
             <div style={{ ...cardHeader, padding: "16px 20px" }}><div style={cardTitle}>Publicação</div></div>
             <div style={{ padding: "20px" }}>
@@ -196,13 +190,9 @@ export default function AdminEmpreendimentoNovoPage() {
             </div>
           </div>
 
-          {/* AÇÕES */}
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <button id="topbar-publicar" onClick={handlePublish} style={{ padding: "13px", background: "linear-gradient(135deg,var(--gold-500),var(--gold-400))", border: "none", borderRadius: "8px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--navy-900)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              Publicar Empreendimento
-            </button>
-            <button style={{ padding: "11px", border: "1px solid var(--neutral-200)", borderRadius: "8px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500, color: "var(--neutral-600)", background: "none", cursor: "pointer" }}>
-              Salvar como rascunho
+            <button id="topbar-publicar" onClick={handleSave} style={{ padding: "13px", background: "linear-gradient(135deg,var(--gold-500),var(--gold-400))", border: "none", borderRadius: "8px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--navy-900)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              Salvar alterações
             </button>
             <a href="/admin/empreendimentos" style={{ padding: "11px", border: "1px solid var(--neutral-200)", borderRadius: "8px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500, color: "var(--neutral-600)", background: "none", textAlign: "center", textDecoration: "none", display: "block" }}>
               Cancelar
@@ -212,4 +202,13 @@ export default function AdminEmpreendimentoNovoPage() {
       </div>
     </>
   );
+}
+
+export default function AdminEmpreendimentoEditarPage() {
+  const { id } = useParams<{ id: string }>();
+  const { isAdmin, usuario } = useSessao();
+  const emp = empreendimentosMock.find((x) => String(x.id) === id);
+  if (!emp) return <PublicacaoNaoEncontrada voltarPara="/admin/empreendimentos" />;
+  if (!isAdmin && emp.corretorId !== usuario.id) return <PublicacaoDeOutroCorretor voltarPara="/admin/empreendimentos" />;
+  return <EmpreendimentoEditarForm key={`${usuario.id}-${emp.id}`} emp={emp} />;
 }

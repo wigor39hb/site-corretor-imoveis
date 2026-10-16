@@ -2,15 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSessao } from "@/context/SessaoContext";
+import { getCorretor } from "@/lib/mock/corretores";
+import { empreendimentosMock } from "@/lib/mock/publicacoes";
+import { ConfirmDialog, useToast } from "@/components/admin/ui";
 
-const empreendimentos = [
-  { id: 1, nome: "Grand Tower", loc: "Vila Olímpia, São Paulo", status: "lancamento", statusLabel: "Lançamento", unidades: 48, disponiveis: 12, entrega: 2026, icon: "🏢" },
-  { id: 2, nome: "Residencial Alphaville II", loc: "Barueri, SP", status: "obras", statusLabel: "Em obras", unidades: 24, disponiveis: 8, entrega: 2025, icon: "🏡" },
-  { id: 3, nome: "Vila das Artes", loc: "Pinheiros, São Paulo", status: "pronto", statusLabel: "Pronto para morar", unidades: 16, disponiveis: 3, entrega: 2024, icon: "🌿" },
-  { id: 4, nome: "Condomínio Serra Verde", loc: "São Roque, SP", status: "breve", statusLabel: "Breve lançamento", unidades: 32, disponiveis: 32, entrega: 2027, icon: "🏔" },
-  { id: 5, nome: "Moema Prime", loc: "Moema, São Paulo", status: "obras", statusLabel: "Em obras", unidades: 20, disponiveis: 7, entrega: 2026, icon: "🏙" },
-  { id: 6, nome: "Riviera Club", loc: "Bertioga, SP", status: "pronto", statusLabel: "Pronto para morar", unidades: 60, disponiveis: 5, entrega: 2023, icon: "🌊" },
-];
 
 const badgeStyle: Record<string, React.CSSProperties> = {
   lancamento: { background: "rgba(45,89,134,0.9)", color: "#fff" },
@@ -22,6 +19,14 @@ const badgeStyle: Record<string, React.CSSProperties> = {
 export default function AdminEmpreendimentosPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const { isAdmin, usuario } = useSessao();
+  const router = useRouter();
+  const { toast, mostrar } = useToast();
+  const [todos, setTodos] = useState(empreendimentosMock);
+  const [excluindo, setExcluindo] = useState<{ id: number; nome: string } | null>(null);
+
+  // Corretor vê só os empreendimentos pelos quais é responsável; admin vê todos.
+  const empreendimentos = isAdmin ? todos : todos.filter((e) => e.corretorId === usuario.id);
 
   const filtered = empreendimentos.filter((e) => {
     const q = search.toLowerCase();
@@ -32,6 +37,20 @@ export default function AdminEmpreendimentosPage() {
 
   return (
     <div style={{ maxWidth: "1200px" }}>
+      {toast}
+      {excluindo && (
+        <ConfirmDialog
+          titulo="Excluir empreendimento?"
+          texto={`"${excluindo.nome}" e as fotos dele serão excluídos do site. Isso não pode ser desfeito.`}
+          confirmar="Excluir"
+          onConfirmar={() => {
+            setTodos(todos.filter((e) => e.id !== excluindo.id));
+            setExcluindo(null);
+            mostrar("Empreendimento excluído");
+          }}
+          onCancelar={() => setExcluindo(null)}
+        />
+      )}
 
       {/* FILTROS */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px", flexWrap: "wrap" }}>
@@ -58,11 +77,18 @@ export default function AdminEmpreendimentosPage() {
         </select>
       </div>
 
+      {filtered.length === 0 && (
+        <div style={{ background: "#fff", border: "1px solid var(--neutral-200)", borderRadius: "12px", padding: "48px 24px", textAlign: "center", fontSize: "14px", color: "var(--neutral-400)", fontFamily: "var(--font-sans)" }}>
+          Nenhum empreendimento encontrado.{" "}
+          <Link href="/admin/empreendimentos/novo" style={{ color: "var(--gold-500)", fontWeight: 500 }}>Cadastrar empreendimento</Link>
+        </div>
+      )}
+
       {/* GRID */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px,1fr))", gap: "20px" }}>
         {filtered.map((emp) => (
           <div key={emp.id}
-            onClick={() => { window.location.href = `/admin/empreendimentos/${emp.id}/editar`; }}
+            onClick={() => router.push(`/admin/empreendimentos/${emp.id}/editar`)}
             style={{ background: "#fff", border: "1px solid var(--neutral-200)", borderRadius: "12px", overflow: "hidden", cursor: "pointer", transition: "border-color .3s, box-shadow .3s" }}
             className="admin-emp-card"
           >
@@ -81,6 +107,11 @@ export default function AdminEmpreendimentosPage() {
               <div style={{ fontSize: "13px", color: "var(--neutral-400)", marginBottom: "14px", display: "flex", alignItems: "center", gap: "4px", fontFamily: "var(--font-sans)" }}>
                 📍 {emp.loc}
               </div>
+              {isAdmin && (
+                <div style={{ fontSize: "12px", color: "var(--neutral-400)", marginTop: "-8px", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>
+                  Corretor: <strong style={{ color: "var(--neutral-600)", fontWeight: 500 }}>{getCorretor(emp.corretorId).nome}</strong>
+                </div>
+              )}
 
               {/* STATS */}
               <div style={{ display: "flex", gap: "16px", paddingTop: "14px", borderTop: "1px solid var(--neutral-100)" }}>
@@ -96,7 +127,7 @@ export default function AdminEmpreendimentosPage() {
               <div style={{ display: "flex", gap: "8px", marginTop: "14px" }} onClick={(e) => e.stopPropagation()}>
                 <Link href={`/admin/empreendimentos/${emp.id}/editar`} style={{ flex: 1, padding: "8px", border: "1px solid var(--neutral-200)", borderRadius: "8px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, color: "var(--neutral-600)", textAlign: "center", textDecoration: "none", display: "block" }}>✏️ Editar</Link>
                 <Link href={`/empreendimentos/${emp.id}`} target="_blank" style={{ flex: 1, padding: "8px", border: "1px solid var(--neutral-200)", borderRadius: "8px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, color: "var(--neutral-600)", textAlign: "center", textDecoration: "none", display: "block" }}>↗ Ver no site</Link>
-                <button style={{ flex: 1, padding: "8px", border: "1px solid var(--neutral-200)", borderRadius: "8px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, color: "var(--neutral-600)", background: "none", cursor: "pointer" }}>🗑</button>
+                <button onClick={() => setExcluindo({ id: emp.id, nome: emp.nome })} title="Excluir" style={{ flex: 1, padding: "8px", border: "1px solid var(--neutral-200)", borderRadius: "8px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, color: "var(--neutral-600)", background: "none", cursor: "pointer" }}>🗑</button>
               </div>
             </div>
           </div>
