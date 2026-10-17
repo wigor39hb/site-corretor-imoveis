@@ -1,14 +1,16 @@
-# Site KL Investimentos Imobiliários — estado do projeto
+# Site KL Negócios Imobiliários — estado do projeto
 
 > Documento de continuidade. Registra as decisões, o que já foi feito e o que falta,
 > para retomar o trabalho sem precisar explicar tudo de novo.
-> **Última atualização:** 16/10/2026.
+> **Última atualização:** 16/10/2026 (noite).
 
 ---
 
 ## 1. Visão geral
 
-- **O que é:** site de uma imobiliária, a **KL Investimentos Imobiliários** (São Paulo, alto padrão), com **vários corretores**.
+- **O que é:** site de uma imobiliária, a **KL Negócios Imobiliários** ("KL Imóveis"), com **vários corretores**.
+  - **Fica em Cuiabá-MT** (Av. Historiador Rubens de Mendonça, 1200, Alvorada). O nome e a cidade foram atualizados por você nas Configurações do site em 16/10/2026 (antes o modelo dizia "KL Investimentos", São Paulo).
+  - O nome, os contatos e os textos **não ficam no código**: vêm das Configurações do site, no banco.
 - **Quem é quem:**
   - **Desenvolvedor:** você (Wigor).
   - **Cliente:** o dono da KL, que vai comprar o site.
@@ -105,6 +107,22 @@ Outros pontos combinados:
   - publicações **não** precisam de aprovação de admin;
   - corretor desativado some do site, mas os imóveis dele **ficam guardados** (não aparecem no site) para o admin transferir; o banco não deixa apagar um corretor que tenha publicações.
 
+### 2.8 Página inicial apresenta a imobiliária (16/10/2026)
+- **Primeira tela:**
+  - no lugar da foto do corretor, um **carrossel de fotos** que troca sozinho a cada 5 s (transição suave);
+  - **clicar e segurar** (ou encostar o dedo) pausa na foto atual; ao soltar, volta a rodar; sem legenda e sem link;
+  - as fotos são escolhidas pelo cliente em Configurações do site (adicionar várias, mudar a ordem, remover); você colocou fotos de teste;
+  - **os dois cartões flutuantes** ("342+", "★ 4.9") **foram removidos**;
+  - botão **"Conheça nosso trabalho"** (era "meu").
+- **Seção "Sobre Nós"** (mais abaixo na home): apresentação da empresa, com **uma foto única** da imobiliária (campo separado, sem carrossel); **título, texto e destaques editáveis pelo cliente** (opção "a"); o quadrinho "10+" saiu; botão "Fale Conosco".
+- **Destaque nos títulos:** texto entre `*asteriscos*` aparece em itálico colorido (título da primeira tela e da seção Sobre).
+- **Logo** (substitui o nome escrito; sem logo, volta o nome): menu do site, rodapé, menu lateral do painel e tela de login. Precisa ser **PNG com fundo transparente, versão clara** (todos esses fundos são azul-marinho). A margem transparente em volta é **cortada sozinha** no envio.
+- **Ícone do site** (aba do navegador/favoritos): campo próprio nas Configurações; imagem quadrada, PNG ≥ 512×512. Sem ícone, aparece o padrão `public/icone-padrao.svg` (casinha dourada). O ícone da Vercel (`favicon.ico`) foi removido.
+- **Menu do topo:** só Imóveis, Empreendimentos, Sobre e o botão **Fale Conosco** (o link "Contato" saiu porque o Fale Conosco já leva para lá). O rodapé **mantém** o link "Contato".
+- **Rodapé:** abaixo da logo mostra **telefone/WhatsApp da imobiliária** (clicável, abre o WhatsApp), **endereço**, **horário de atendimento** e os **ícones das redes sociais** (abrem em nova aba). Cada item **só aparece se estiver preenchido** nas Configurações.
+- **Redes sociais:** Instagram, Facebook, LinkedIn, YouTube e **TikTok** (TikTok adicionado nesta sessão). Pode digitar `@usuario`, `usuario` ou o link inteiro; o site monta o endereço. Aparecem no rodapé e na página Contato.
+- **Página Contato:** telefone, e-mail, horário e endereço vêm das Configurações (itens vazios não aparecem); "Área de atuação" virou "Endereço".
+
 ---
 
 ## 3. Ordem das etapas
@@ -127,10 +145,10 @@ Outros pontos combinados:
 
 ## 4. O que já foi feito
 
-> Tudo desta seção está no GitHub, no commit `6d9861f` ("Adapta site para imobiliaria KL e cria painel admin com papeis").
+> Esta seção descreve a primeira versão (commit `6d9861f`). O que mudou depois com o banco está nas seções 2.8 e 8.
 
 ### 4.1 Site público
-- `src/lib/site.ts` — dados da imobiliária: nome, nome curto, CRECI, WhatsApp e e-mail do dono. **Valores provisórios.**
+- ~~`src/lib/site.ts`~~ — **removido em 16/10/2026**; os dados da imobiliária agora vêm do banco (ver 8.5).
 - Menu (`Navbar`) e rodapé (`Footer`) com o nome KL; "Fale Comigo" virou "Fale Conosco"; título das páginas = nome da KL.
 - **Página inicial:** o botão de WhatsApp vai para o número do dono, com mensagem pronta.
 - **Página Contato:** textos em nome da empresa e nova seção **"Nossa Equipe"** (`#equipe`), com o cartão e o WhatsApp de cada corretor.
@@ -181,16 +199,20 @@ Outros pontos combinados:
 ## 5. Pendências e perguntas em aberto
 
 ### Informações do cliente
-- [ ] Logo da KL (você vai enviar). Vai substituir o nome escrito no menu, no rodapé e no painel.
-- [ ] Confirmar a grafia "KL Investimentos Imobiliários".
-- [ ] CRECI-J real, WhatsApp e e-mail reais do dono. Hoje são provisórios em `src/lib/site.ts`.
+- [x] Logo da KL — você já enviou uma pelas Configurações.
+- [x] Nome: "KL Negócios Imobiliários" / "KL Imóveis" (preenchido por você nas Configurações).
+- [ ] **CRECI ainda é "CRECI-SP 00000-J"**, mas a imobiliária é de Cuiabá: o certo é **CRECI-MT** (19ª Região). Pegar o número real.
+- [ ] **Números em destaque** (10+ anos, 342+ imóveis, 120+ clientes, 4.9★) ainda são os do modelo: pedir os números reais ao cliente.
+- [ ] Confirmar e-mail real; WhatsApp da imobiliária já cadastrado.
 - [ ] Dados reais dos corretores.
+- [ ] Na entrega, o cliente troca as fotos de teste do carrossel e a foto da seção Sobre pelas dele.
 
 ### Telas públicas (próxima etapa)
 - [ ] **Página Sobre** ainda fala em 1ª pessoa ("João Corretor", "Minha história", depoimentos citando João, link de WhatsApp antigo). Tem também um aviso do lint: variável `i` sem uso, perto da linha 152.
 - [ ] **Lista de Empreendimentos** ainda tem o link de WhatsApp antigo. Você vai decidir para qual número ele aponta.
 - [ ] A página Contato deve mostrar **só os corretores ativos**.
-- [ ] Onde mais destacar o WhatsApp do dono? Ideias: botão flutuante, página Sobre, rodapé, o dono como primeiro da equipe com um selo.
+- [ ] **Página Sobre** ainda não lê do banco: o texto ("Sobre a imobiliária") e os **depoimentos** já são editáveis nas Configurações, mas só aparecem quando a página for adaptada.
+- [ ] Onde mais destacar o WhatsApp do dono? (Já aparece no rodapé e no botão da home.) Ideias: botão flutuante, o dono como primeiro da equipe com um selo.
 - [ ] O dono também anuncia imóveis como corretor? Se sim, ele é administrador **e** corretor.
 
 ### Regras para definir antes do banco
@@ -230,8 +252,10 @@ Verificações de código (rodar na pasta `fornt-end`):
 ## 7. Próximos passos
 
 1. ~~Primeiro admin e login real~~ ✅ feito.
-2. Você me passa os ajustes que viu no painel, e vamos ligando tela por tela ao banco (Configurações, Corretores, Imóveis, Empreendimentos, Fotos).
-3. Adaptar as telas públicas (Sobre, lista de Empreendimentos, só corretores ativos…) já lendo do banco.
+2. ~~Meu perfil e Configurações do site~~ ✅ feitos.
+3. **Próxima tela: Corretores** — cadastrar corretor de verdade (criando o login dele), desativar/reativar; a página Contato passa a mostrar a equipe do banco. Antes, perguntar se você tem ajustes para essa tela.
+4. Depois: Imóveis → Empreendimentos → Fotos (3 versões).
+5. Adaptar as telas públicas restantes (Sobre, lista de Empreendimentos…) já lendo do banco.
 
 ---
 
@@ -267,7 +291,7 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 - [x] 1. Criar o projeto no Supabase
 - [x] 2. Rodar `supabase/schema.sql` no SQL Editor
 - [x] 3. Colocar as chaves novas no `.env.local` (formato conferido)
-- [ ] 4. Criar a conta de admin do Wigor:
+- [x] 4. Criar a conta de admin do Wigor (feito; e-mail wigorernandes@gmail.com):
   - Authentication → Users → **Add user → Create new user**, com **Auto Confirm User** marcado;
   - depois, no SQL Editor (trocar o e-mail):
     ```sql
@@ -287,9 +311,28 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
   - [x] **Meu perfil** (16/10): salva os dados no banco; troca de senha no card "Acesso" (mín. 8 caracteres); **foto de perfil** cortada em quadrado no navegador (600×600, WebP), salva na hora em `perfis/<id>/` e a antiga é apagada do Storage; foto aparece também no menu lateral (`Avatar` em `ui.tsx`).
   - [x] **Campo de WhatsApp padronizado** (`CampoWhatsapp` em `ui.tsx`): "+55" fixo, máscara `(11) 99999-9999`; no banco sempre só dígitos `5511999999999`. Usado em Meu perfil, Corretores e Configurações.
   - Avisos de erro em vermelho: `mostrar(texto, true)`.
-  - [ ] Configurações do site
+  - [x] **Configurações do site** (16/10): ver 2.8 e 8.5.
   - [ ] Corretores
   - [ ] Imóveis
   - [ ] Empreendimentos
   - [ ] Fotos de imóveis/empreendimentos (3 versões)
 - Mais tarde: a conta do dono da KL (admin) e as dos corretores serão criadas pela tela Corretores do painel.
+
+### 8.5 Arquivos de mudança do banco (rodar cada um UMA vez, em ordem)
+| Arquivo | O que faz | Rodado? |
+|---|---|---|
+| `supabase/schema.sql` | tabelas, regras de segurança, Storage, configurações iniciais | ✅ 16/10 |
+| `supabase/002_pagina_inicial_empresa.sql` | campos `favicon_url`, `carrossel`, `sobre_foto_url`, `home_sobre_titulo/texto/itens` + textos iniciais em nome da empresa | ✅ 16/10 |
+| `supabase/003_tiktok.sql` | campo `tiktok` | ✅ 16/10 |
+
+⚠️ Se o código usa um campo que ainda não existe no banco, a tela dá erro ao salvar (aconteceu com o ícone antes de rodar o 002). Sempre rodar o arquivo novo antes de testar.
+
+### 8.6 Como o site lê as configurações (para mim, ao retomar)
+- `src/lib/configuracoes.ts` — tipo `ConfigSite`, conversão da linha do banco (`deLinha`), `partesDestaque` (asteriscos), `linkRede`, `REDES`/`redesDoSite`.
+- `src/lib/configuracoes-servidor.ts` — `getConfiguracoes()` (uma leitura por carregamento de página).
+- `src/context/ConfigSiteContext.tsx` — `useConfigSite()`; fornecido pelos layouts do site (`(public)/layout.tsx`), do painel e do login.
+- `src/app/layout.tsx` — título das páginas e ícone vêm do banco (`generateMetadata`).
+- Imagens do site no Storage em `site/logo`, `site/icone`, `site/sobre`, `site/carrossel`. Funções em `src/lib/helpers/imagem.ts` (`comprimir`, `iconeQuadrado`, `enviarArquivo`, `apagarArquivo`).
+- Tamanhos: carrossel até 2560 px, foto do Sobre 1600 px, logo 1200 px (sem margem transparente), ícone 512×512 PNG; tudo WebP, menos o ícone.
+- Na tela Configurações: **imagens e carrossel salvam na hora; textos ao clicar em Salvar alterações**.
+- Componentes novos: `HeroCarrossel` (public), `Logo` e `IconeRede` (shared).
