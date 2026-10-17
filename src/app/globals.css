@@ -326,6 +326,8 @@ body { overflow-x: hidden; }
   transition: color 0.3s;
 }
 .footer-link:hover { color: var(--gold-400); }
+.footer-telefone { text-decoration: none; transition: color 0.2s; }
+.footer-telefone:hover { color: var(--gold-400) !important; }
 .footer-social {
   width: 34px; height: 34px;
   display: flex; align-items: center; justify-content: center;

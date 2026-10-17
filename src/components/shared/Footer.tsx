@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Logo from "@/components/shared/Logo";
 import IconeRede from "@/components/shared/IconeRede";
+import { formatWhatsapp } from "@/lib/helpers/formatters";
+import { whatsappLink } from "@/lib/helpers/whatsapp";
 import { redesDoSite, type ConfigSite } from "@/lib/configuracoes";
 
 const footerLinks = [
@@ -43,8 +45,14 @@ export default function Footer({ config }: { config: ConfigSite }) {
             </div>
           }
         />
-        {(config.endereco || config.horario) && (
+        {(config.whatsapp || config.endereco || config.horario) && (
           <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "8px" }}>
+            {config.whatsapp && (
+              <a href={whatsappLink(config.whatsapp, `Olá! Vim pelo site da ${config.nomeCurto}.`)} target="_blank" rel="noopener noreferrer" className="footer-telefone" style={infoLinha}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5" style={{ flexShrink: 0, marginTop: "2px" }}><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z" /></svg>
+                {formatWhatsapp(config.whatsapp)}
+              </a>
+            )}
             {config.endereco && (
               <div style={infoLinha}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5" style={{ flexShrink: 0, marginTop: "2px" }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
