@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useConfigSite } from "@/context/ConfigSiteContext";
-import { linkRede } from "@/lib/configuracoes";
+import { redesDoSite } from "@/lib/configuracoes";
+import IconeRede from "@/components/shared/IconeRede";
 import { formatWhatsapp } from "@/lib/helpers/formatters";
 import { corretores } from "@/lib/mock/corretores";
 import { whatsappLink } from "@/lib/helpers/whatsapp";
@@ -176,18 +177,13 @@ export default function ContatoPage() {
             </div>
 
             {/* Social Card */}
-            {(config.instagram || config.linkedin || config.facebook || config.youtube) && (
+            {redesDoSite(config).length > 0 && (
             <div style={{ background: "#fff", border: "1px solid var(--neutral-200)", padding: "28px" }}>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: "15px", fontWeight: 600, color: "var(--navy-900)", marginBottom: "18px" }}>Redes Sociais</div>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {[
-                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>, name: "Instagram", handle: config.instagram, href: linkRede("instagram", config.instagram) },
-                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>, name: "LinkedIn", handle: config.linkedin, href: linkRede("linkedin", config.linkedin) },
-                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#C9A96E"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, name: "Facebook", handle: config.facebook, href: linkRede("facebook", config.facebook) },
-                  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="#C9A96E"/></svg>, name: "YouTube", handle: config.youtube, href: linkRede("youtube", config.youtube) },
-                ].filter((r) => r.href).map(({ icon, name, handle, href }) => (
-                  <a key={name} href={href!} target="_blank" rel="noopener noreferrer" className="social-link">
-                    <div style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</div>
+                {redesDoSite(config).map(({ rede, nome: name, usuario: handle, href }) => (
+                  <a key={rede} href={href} target="_blank" rel="noopener noreferrer" className="social-link">
+                    <div style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><IconeRede rede={rede} tamanho={20} /></div>
                     <div>
                       <div style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, color: "var(--navy-900)", letterSpacing: "0.04em" }}>{name}</div>
                       <div style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--neutral-400)", marginTop: "2px" }}>{handle}</div>

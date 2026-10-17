@@ -59,7 +59,7 @@ function paraBlob(canvas: HTMLCanvasElement, formato: string, qualidade?: number
 
 // Área da imagem sem as bordas transparentes (logos costumam vir com muita margem vazia).
 function areaVisivel(bitmap: ImageBitmap) {
-  const { canvas, ctx } = carregarCanvas(bitmap.width, bitmap.height);
+  const { ctx } = carregarCanvas(bitmap.width, bitmap.height);
   ctx.drawImage(bitmap, 0, 0);
   const { data, width, height } = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
   let x0 = width, y0 = height, x1 = -1, y1 = -1;

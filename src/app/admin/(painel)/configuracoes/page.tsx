@@ -84,6 +84,7 @@ function ConfiguracoesForm({ config }: { config: ConfigSite }) {
         facebook: limpar(dados.facebook),
         linkedin: limpar(dados.linkedin),
         youtube: limpar(dados.youtube),
+        tiktok: limpar(dados.tiktok),
         hero_frase: limpar(dados.heroFrase),
         hero_titulo: limpar(dados.heroTitulo),
         hero_texto: limpar(dados.heroTexto),
@@ -417,7 +418,7 @@ function ConfiguracoesForm({ config }: { config: ConfigSite }) {
           <div style={{ ...card, marginBottom: "16px" }}>
             <div style={{ ...cardHeader, padding: "16px 20px" }}>
               <div style={cardTitle}>Redes sociais</div>
-              <div style={cardSub}>Deixe em branco as que não usa</div>
+              <div style={cardSub}>Aparecem no rodapé e na página Contato. Deixe em branco as que não usa.</div>
             </div>
             <div style={{ padding: "20px" }}>
               {([
@@ -425,6 +426,7 @@ function ConfiguracoesForm({ config }: { config: ConfigSite }) {
                 { campo: "facebook", l: "Facebook", p: "facebook.com/..." },
                 { campo: "linkedin", l: "LinkedIn", p: "linkedin.com/company/..." },
                 { campo: "youtube", l: "YouTube", p: "youtube.com/@..." },
+                { campo: "tiktok", l: "TikTok", p: "@kl.imoveis" },
               ] as const).map((r, i, arr) => (
                 <div key={r.campo} style={{ marginBottom: i < arr.length - 1 ? "16px" : 0 }}>
                   <label style={fieldLabel}>{r.l}</label>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/shared/Logo";
-import type { ConfigSite } from "@/lib/configuracoes";
+import IconeRede from "@/components/shared/IconeRede";
+import { redesDoSite, type ConfigSite } from "@/lib/configuracoes";
 
 const footerLinks = [
   { href: "/imoveis", label: "Imóveis" },
@@ -15,6 +16,7 @@ const infoLinha: React.CSSProperties = {
 };
 
 export default function Footer({ config }: { config: ConfigSite }) {
+  const redes = redesDoSite(config);
   return (
     <footer style={{ background: "#080F17" }} className="footer-outer">
       <div style={{
@@ -55,6 +57,15 @@ export default function Footer({ config }: { config: ConfigSite }) {
                 {config.horario}
               </div>
             )}
+          </div>
+        )}
+        {redes.length > 0 && (
+          <div style={{ marginTop: "16px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            {redes.map((r) => (
+              <a key={r.rede} href={r.href} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label={r.nome} title={r.nome}>
+                <IconeRede rede={r.rede} tamanho={16} cor="currentColor" />
+              </a>
+            ))}
           </div>
         )}
         </div>

@@ -31,6 +31,7 @@ export interface ConfigSite {
   facebook: string;
   linkedin: string;
   youtube: string;
+  tiktok: string;
   heroFrase: string;
   heroTitulo: string;
   heroTexto: string;
@@ -59,6 +60,7 @@ export interface ConfigSiteLinha {
   facebook: string | null;
   linkedin: string | null;
   youtube: string | null;
+  tiktok?: string | null; // existe depois de rodar supabase/003_tiktok.sql
   hero_frase: string | null;
   hero_titulo: string | null;
   hero_texto: string | null;
@@ -87,6 +89,7 @@ const PADRAO: ConfigSite = {
   facebook: "",
   linkedin: "",
   youtube: "",
+  tiktok: "",
   heroFrase: "",
   heroTitulo: "",
   heroTexto: "",
@@ -115,6 +118,7 @@ export function deLinha(l: ConfigSiteLinha): ConfigSite {
     facebook: l.facebook ?? "",
     linkedin: l.linkedin ?? "",
     youtube: l.youtube ?? "",
+    tiktok: l.tiktok ?? "",
     heroFrase: l.hero_frase ?? "",
     heroTitulo: l.hero_titulo ?? "",
     heroTexto: l.hero_texto ?? "",
@@ -146,7 +150,23 @@ export function partesDestaque(texto: string): { texto: string; destaque: boolea
 
 // Endereço completo de uma rede social a partir do que o admin digitou
 // ("@kl.imoveis", "kl.imoveis" ou o link inteiro).
-export function linkRede(rede: "instagram" | "facebook" | "linkedin" | "youtube", valor: string): string | null {
+export type Rede = "instagram" | "facebook" | "linkedin" | "youtube" | "tiktok";
+
+export const REDES: { rede: Rede; nome: string }[] = [
+  { rede: "instagram", nome: "Instagram" },
+  { rede: "facebook", nome: "Facebook" },
+  { rede: "linkedin", nome: "LinkedIn" },
+  { rede: "youtube", nome: "YouTube" },
+  { rede: "tiktok", nome: "TikTok" },
+];
+
+// Redes preenchidas nas Configurações, já com o endereço completo.
+export function redesDoSite(config: ConfigSite) {
+  return REDES.map((r) => ({ ...r, usuario: config[r.rede], href: linkRede(r.rede, config[r.rede]) }))
+    .filter((r): r is typeof r & { href: string } => r.href !== null);
+}
+
+export function linkRede(rede: Rede, valor: string): string | null {
   const v = valor.trim();
   if (!v) return null;
   if (/^https?:\/\//i.test(v)) return v;
@@ -157,6 +177,7 @@ export function linkRede(rede: "instagram" | "facebook" | "linkedin" | "youtube"
     facebook: "https://facebook.com/",
     linkedin: "https://linkedin.com/company/",
     youtube: "https://youtube.com/@",
+    tiktok: "https://tiktok.com/@",
   }[rede];
   return base + usuario;
 }

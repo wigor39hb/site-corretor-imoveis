@@ -326,6 +326,14 @@ body { overflow-x: hidden; }
   transition: color 0.3s;
 }
 .footer-link:hover { color: var(--gold-400); }
+.footer-social {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(201,169,110,0.25);
+  color: var(--gold-500);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.footer-social:hover { color: var(--gold-400); border-color: var(--gold-400); background: rgba(201,169,110,0.08); }
 
 /* ─── LAYOUT RESPONSIVO ──────────────────────────────── */
 .hero-content-grid {
