@@ -78,7 +78,7 @@ export default function Navbar() {
           <Logo
             logoUrl={config.logoUrl}
             nome={config.nome}
-            altura={scrolled ? 40 : 48}
+            altura={scrolled ? 48 : 60}
             semLogo={
               <>
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: "22px", fontWeight: 700, color: "#fff", lineHeight: 1, letterSpacing: "0.02em" }}>

@@ -57,15 +57,36 @@ function paraBlob(canvas: HTMLCanvasElement, formato: string, qualidade?: number
   );
 }
 
+// Área da imagem sem as bordas transparentes (logos costumam vir com muita margem vazia).
+function areaVisivel(bitmap: ImageBitmap) {
+  const { canvas, ctx } = carregarCanvas(bitmap.width, bitmap.height);
+  ctx.drawImage(bitmap, 0, 0);
+  const { data, width, height } = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
+  let x0 = width, y0 = height, x1 = -1, y1 = -1;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (data[(y * width + x) * 4 + 3] > 8) {
+        if (x < x0) x0 = x;
+        if (x > x1) x1 = x;
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) return { x: 0, y: 0, largura: width, altura: height }; // imagem toda transparente
+  return { x: x0, y: y0, largura: x1 - x0 + 1, altura: y1 - y0 + 1 };
+}
+
 // Reduz a imagem para no máximo `ladoMaior` px (sem cortar), em WebP.
-// Mantém fundo transparente (logo).
-export async function comprimir(arquivo: File, ladoMaior = 2560, qualidade = 0.85): Promise<Blob> {
+// Mantém fundo transparente; com `cortarBordas`, tira a margem transparente (logo).
+export async function comprimir(arquivo: File, ladoMaior = 2560, qualidade = 0.85, cortarBordas = false): Promise<Blob> {
   const bitmap = await createImageBitmap(arquivo);
-  const escala = Math.min(1, ladoMaior / Math.max(bitmap.width, bitmap.height));
-  const largura = Math.round(bitmap.width * escala);
-  const altura = Math.round(bitmap.height * escala);
+  const area = cortarBordas ? areaVisivel(bitmap) : { x: 0, y: 0, largura: bitmap.width, altura: bitmap.height };
+  const escala = Math.min(1, ladoMaior / Math.max(area.largura, area.altura));
+  const largura = Math.round(area.largura * escala);
+  const altura = Math.round(area.altura * escala);
   const { canvas, ctx } = carregarCanvas(largura, altura);
-  ctx.drawImage(bitmap, 0, 0, largura, altura);
+  ctx.drawImage(bitmap, area.x, area.y, area.largura, area.altura, 0, 0, largura, altura);
   bitmap.close();
   return paraBlob(canvas, "image/webp", qualidade);
 }

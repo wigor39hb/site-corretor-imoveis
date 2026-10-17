@@ -111,7 +111,7 @@ function ConfiguracoesForm({ config }: { config: ConfigSite }) {
     try {
       const imagem =
         campo === "faviconUrl" ? await iconeQuadrado(arquivo)
-        : campo === "logoUrl" ? await comprimir(arquivo, 800, 0.9)
+        : campo === "logoUrl" ? await comprimir(arquivo, 1200, 0.9, true)
         : await comprimir(arquivo, 1600);
       const pasta = { logoUrl: "logo", faviconUrl: "icone", sobreFotoUrl: "sobre" }[campo];
       const url = await enviarArquivo(`site/${pasta}/${nomeArquivo(campo === "faviconUrl" ? "png" : "webp")}`, imagem);
@@ -239,7 +239,7 @@ function ConfiguracoesForm({ config }: { config: ConfigSite }) {
                   fundoEscuro
                   altura={120}
                   ajuste="contain"
-                  texto="PNG com fundo transparente, numa versão clara (branca ou dourada): o menu, o rodapé e o painel têm fundo escuro."
+                  texto="PNG com fundo transparente, numa versão clara (branca ou dourada): o menu, o rodapé e o painel têm fundo escuro. A margem vazia em volta da logo é cortada sozinha."
                   onEnviar={(f) => trocarImagem("logo_url", "logoUrl", f)}
                   onRemover={() => removerImagem("logo_url", "logoUrl")}
                 />

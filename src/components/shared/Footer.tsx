@@ -23,7 +23,7 @@ export default function Footer({ config }: { config: ConfigSite }) {
         <Logo
           logoUrl={config.logoUrl}
           nome={config.nome}
-          altura={48}
+          altura={60}
           semLogo={
             <div>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: "20px", fontWeight: 700, color: "#fff" }}>

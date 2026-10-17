@@ -73,7 +73,7 @@ export default function Sidebar() {
             <Logo
               logoUrl={config.logoUrl}
               nome={config.nome}
-              altura={40}
+              altura={52}
               semLogo={
                 <div
                   style={{

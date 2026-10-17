@@ -9,6 +9,6 @@ export default function Logo({ logoUrl, nome, altura, semLogo }: {
   if (!logoUrl) return <>{semLogo}</>;
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={logoUrl} alt={nome} style={{ height: altura, width: "auto", maxWidth: "220px", objectFit: "contain", display: "block" }} />
+    <img src={logoUrl} alt={nome} style={{ height: altura, width: "auto", maxWidth: "260px", objectFit: "contain", display: "block" }} />
   );
 }

@@ -122,7 +122,7 @@ export default function LoginPage() {
           <div style={{ marginBottom: "48px" }}>
             {config.logoUrl && (
               <div style={{ marginBottom: "32px" }}>
-                <Logo logoUrl={config.logoUrl} nome={config.nome} altura={56} semLogo={null} />
+                <Logo logoUrl={config.logoUrl} nome={config.nome} altura={72} semLogo={null} />
               </div>
             )}
             <div
