@@ -1,11 +1,8 @@
-"use client";
-
-import { useSessao } from "@/context/SessaoContext";
+import { adminLogado } from "@/lib/corretores-servidor";
 import CorretorForm from "@/components/admin/CorretorForm";
 import { AcessoRestrito } from "@/components/admin/ui";
 
-export default function AdminCorretorNovoPage() {
-  const { isAdmin } = useSessao();
-  if (!isAdmin) return <AcessoRestrito />;
+export default async function AdminCorretorNovoPage() {
+  if (!(await adminLogado())) return <AcessoRestrito />;
   return <CorretorForm />;
 }

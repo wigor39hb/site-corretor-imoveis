@@ -210,7 +210,7 @@ Outros pontos combinados:
 ### Telas públicas (próxima etapa)
 - [ ] **Página Sobre** ainda fala em 1ª pessoa ("João Corretor", "Minha história", depoimentos citando João, link de WhatsApp antigo). Tem também um aviso do lint: variável `i` sem uso, perto da linha 152.
 - [ ] **Lista de Empreendimentos** ainda tem o link de WhatsApp antigo. Você vai decidir para qual número ele aponta.
-- [ ] A página Contato deve mostrar **só os corretores ativos**.
+- [x] A página Contato mostra **só os corretores ativos** (e marcados para aparecer no site).
 - [ ] **Página Sobre** ainda não lê do banco: o texto ("Sobre a imobiliária") e os **depoimentos** já são editáveis nas Configurações, mas só aparecem quando a página for adaptada.
 - [ ] Onde mais destacar o WhatsApp do dono? (Já aparece no rodapé e no botão da home.) Ideias: botão flutuante, o dono como primeiro da equipe com um selo.
 - [ ] O dono também anuncia imóveis como corretor? Se sim, ele é administrador **e** corretor.
@@ -253,8 +253,8 @@ Verificações de código (rodar na pasta `fornt-end`):
 
 1. ~~Primeiro admin e login real~~ ✅ feito.
 2. ~~Meu perfil e Configurações do site~~ ✅ feitos.
-3. **Próxima tela: Corretores** — cadastrar corretor de verdade (criando o login dele), desativar/reativar; a página Contato passa a mostrar a equipe do banco. Antes, perguntar se você tem ajustes para essa tela.
-4. Depois: Imóveis → Empreendimentos → Fotos (3 versões).
+3. ~~Corretores~~ ✅ feito (19/10).
+4. **Próxima:** Imóveis → Empreendimentos → Fotos (3 versões).
 5. Adaptar as telas públicas restantes (Sobre, lista de Empreendimentos…) já lendo do banco.
 
 ---
@@ -263,7 +263,7 @@ Verificações de código (rodar na pasta `fornt-end`):
 
 ### 8.1 Projeto
 - **Projeto novo, só da KL**, criado em 16/10/2026 (plano Free, região **São Paulo**). O projeto Supabase antigo que estava no `.env.local` era de outra coisa e **não é usado**.
-- Na criação: **"Habilitar API de Dados" marcada** e **"Expor automaticamente novas tabelas" desmarcada** (tabela nova nasce trancada; o acesso é liberado de propósito no SQL, com `grant`). ⚠️ Por isso, **toda tabela nova criada no futuro precisa de `grant` + regras RLS** no próprio arquivo de mudança.
+- Na criação: **"Habilitar API de Dados" marcada** e **"Expor automaticamente novas tabelas" desmarcada** (tabela nova nasce trancada; o acesso é liberado de propósito no SQL, com `grant`). ⚠️ Por isso, **toda tabela nova criada no futuro precisa de `grant` (para `anon`, `authenticated` **e `service_role`**) + regras RLS** no próprio arquivo de mudança.
 - A senha do banco (Database Password) ficou guardada com você.
 
 ### 8.2 Chaves (`.env.local`, nunca vai para o GitHub)
@@ -312,7 +312,13 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
   - [x] **Campo de WhatsApp padronizado** (`CampoWhatsapp` em `ui.tsx`): "+55" fixo, máscara `(11) 99999-9999`; no banco sempre só dígitos `5511999999999`. Usado em Meu perfil, Corretores e Configurações.
   - Avisos de erro em vermelho: `mostrar(texto, true)`.
   - [x] **Configurações do site** (16/10): ver 2.8 e 8.5.
-  - [ ] Corretores
+  - [x] **Corretores** (19/10): lista, cadastro e edição pelo banco.
+    - Cadastro cria o login na hora com **senha inicial** definida pelo admin (sem e-mail de convite: o e-mail grátis do Supabase só manda para a própria equipe do projeto). O corretor troca a senha em Meu perfil.
+    - Editar: dados, papel, ativo, **"Aparece no site"**, e-mail de acesso, **"Definir nova senha"** (para quem esqueceu) e foto.
+    - Desativar/reativar direto na lista.
+    - Ações que mexem em login rodam no servidor com a chave mestra (`src/app/admin/(painel)/corretores/acoes.ts`, `src/lib/supabase/admin.ts`), sempre conferindo antes que quem pediu é admin.
+    - Página **Contato**: "Nossa Equipe" lê do banco, só ativos e com "Aparece no site", com foto.
+    - Ainda nos dados de exemplo: Dashboard (contagem de corretores), escolha de corretor nos formulários de imóvel/empreendimento e cartão do corretor nos detalhes do site — entram junto com Imóveis/Empreendimentos.
   - [ ] Imóveis
   - [ ] Empreendimentos
   - [ ] Fotos de imóveis/empreendimentos (3 versões)
@@ -324,6 +330,8 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 | `supabase/schema.sql` | tabelas, regras de segurança, Storage, configurações iniciais | ✅ 16/10 |
 | `supabase/002_pagina_inicial_empresa.sql` | campos `favicon_url`, `carrossel`, `sobre_foto_url`, `home_sobre_titulo/texto/itens` + textos iniciais em nome da empresa | ✅ 16/10 |
 | `supabase/003_tiktok.sql` | campo `tiktok` | ✅ 16/10 |
+| `supabase/004_aparece_no_site.sql` | campo `aparece_no_site` em `perfis` (quem aparece em "Nossa Equipe"); contas já existentes começam escondidas | ✅ 19/10 |
+| `supabase/005_acesso_servidor.sql` | dá permissão nas tabelas à chave mestra (`service_role`), usada no servidor para cadastrar corretor | ⏳ |
 
 ⚠️ Se o código usa um campo que ainda não existe no banco, a tela dá erro ao salvar (aconteceu com o ícone antes de rodar o 002). Sempre rodar o arquivo novo antes de testar.
 
