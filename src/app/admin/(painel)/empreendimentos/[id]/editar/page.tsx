@@ -6,6 +6,7 @@ import { useSessao } from "@/context/SessaoContext";
 import { empreendimentosMock } from "@/lib/mock/publicacoes";
 
 type Empreendimento = (typeof empreendimentosMock)[number];
+import { corretores } from "@/lib/mock/corretores";
 import CorretorResponsavelCampo, { PublicacaoDeOutroCorretor, PublicacaoNaoEncontrada } from "@/components/admin/CorretorResponsavelCampo";
 
 type Status = "lancamento" | "obras" | "pronto" | "breve";
@@ -50,6 +51,7 @@ function EmpreendimentoEditarForm({ emp }: { emp: Empreendimento }) {
     "🔐 Segurança 24h com portaria blindada",
     "🚗 3 vagas por unidade",
   ]);
+  const [corretorId, setCorretorId] = useState(emp.corretorId);
   const [showToast, setShowToast] = useState(false);
 
   const addDiferencial = () => setDiferenciais([...diferenciais, ""]);
@@ -144,7 +146,7 @@ function EmpreendimentoEditarForm({ emp }: { emp: Empreendimento }) {
         </div>
 
         <div>
-          <CorretorResponsavelCampo corretorIdInicial={emp.corretorId} />
+          <CorretorResponsavelCampo opcoes={corretores} valor={corretorId} onChange={setCorretorId} />
           <div style={{ ...card, marginBottom: "16px" }}>
             <div style={{ ...cardHeader, padding: "16px 20px" }}><div style={cardTitle}>Status</div></div>
             <div style={{ padding: "20px" }}>

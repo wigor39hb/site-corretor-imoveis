@@ -1,16 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useSessao } from "@/context/SessaoContext";
-import { corretores, getCorretor } from "@/lib/mock/corretores";
+import type { Opcao } from "@/lib/imoveis";
 import { card, cardHeader, cardTitle, fieldLabel, fieldInput, fieldHint, btnPrimary } from "@/components/admin/ui";
 
 // Card "Corretor responsável" dos formulários de imóvel e empreendimento.
 // Admin escolhe o corretor; corretor publica sempre em nome próprio.
-export default function CorretorResponsavelCampo({ corretorIdInicial }: { corretorIdInicial?: string }) {
+export default function CorretorResponsavelCampo({ opcoes, valor, onChange }: {
+  opcoes: Opcao[];
+  valor: string;
+  onChange: (id: string) => void;
+}) {
   const { isAdmin, usuario } = useSessao();
-  const [corretorId, setCorretorId] = useState(corretorIdInicial ?? usuario.id);
+  // Só ativos, mas mantém o atual mesmo se tiver sido desativado (para o admin transferir).
+  const lista = opcoes.filter((c) => c.ativo !== false || c.id === valor);
 
   return (
     <div style={{ ...card, marginBottom: "16px" }}>
@@ -19,15 +23,17 @@ export default function CorretorResponsavelCampo({ corretorIdInicial }: { corret
         {isAdmin ? (
           <>
             <label style={fieldLabel}>Quem atende este anúncio</label>
-            <select style={fieldInput} value={corretorId} onChange={(e) => setCorretorId(e.target.value)}>
-              {corretores.filter((c) => c.ativo).map((c) => (
-                <option key={c.id} value={c.id}>{c.nome}{c.id === usuario.id ? " (você)" : ""}</option>
+            <select style={fieldInput} value={valor} onChange={(e) => onChange(e.target.value)}>
+              {lista.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nome}{c.id === usuario.id ? " (você)" : ""}{c.ativo === false ? " (inativo)" : ""}
+                </option>
               ))}
             </select>
           </>
         ) : (
           <div style={{ fontSize: "14px", fontWeight: 500, color: "var(--neutral-900)", fontFamily: "var(--font-sans)" }}>
-            {getCorretor(corretorId).nome} (você)
+            {usuario.nome} (você)
           </div>
         )}
         <div style={fieldHint}>Os botões de WhatsApp e e-mail do anúncio vão para este corretor.</div>

@@ -254,7 +254,7 @@ Verificações de código (rodar na pasta `fornt-end`):
 1. ~~Primeiro admin e login real~~ ✅ feito.
 2. ~~Meu perfil e Configurações do site~~ ✅ feitos.
 3. ~~Corretores~~ ✅ feito (19/10).
-4. **Próxima:** Imóveis → Empreendimentos → Fotos (3 versões).
+4. Imóveis 🔄 pronto, testando (19/10). **Depois:** Empreendimentos → Fotos (3 versões).
 5. Adaptar as telas públicas restantes (Sobre, lista de Empreendimentos…) já lendo do banco.
 
 ---
@@ -319,7 +319,14 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
     - Ações que mexem em login rodam no servidor com a chave mestra (`src/app/admin/(painel)/corretores/acoes.ts`, `src/lib/supabase/admin.ts`), sempre conferindo antes que quem pediu é admin.
     - Página **Contato**: "Nossa Equipe" lê do banco, só ativos e com "Aparece no site", com foto.
     - Ainda nos dados de exemplo: Dashboard (contagem de corretores), escolha de corretor nos formulários de imóvel/empreendimento e cartão do corretor nos detalhes do site — entram junto com Imóveis/Empreendimentos.
-  - [ ] Imóveis
+  - [x] **Imóveis** (19/10): lista, cadastro e edição pelo banco (`ImoveisLista.tsx`, `ImovelForm.tsx`, `imoveis/acoes.ts`, `lib/imoveis*.ts`). ⏳ falta você testar.
+    - Corretor vê só os próprios; admin vê todos e escolhe o corretor responsável (lista real, só ativos).
+    - Formulário começa em branco, com **Estado = MT**; **Buscar CEP** (ViaCEP) preenche endereço, bairro, cidade e estado; preço digitado só com números (máscara R$).
+    - Obrigatórios: título, descrição, endereço, cidade e preço.
+    - "Salvar como rascunho" saiu: rascunho = desligar **"Visível no site"**.
+    - Mudar status e excluir (um ou vários) gravam no banco.
+    - Fotos: aviso "em breve" até a etapa Fotos. Ao excluir imóvel, falta apagar os arquivos do Storage (fazer na etapa Fotos).
+    - Ainda nos dados de exemplo: contagens do Dashboard e as páginas públicas de imóveis.
   - [ ] Empreendimentos
   - [ ] Fotos de imóveis/empreendimentos (3 versões)
 - Mais tarde: a conta do dono da KL (admin) e as dos corretores serão criadas pela tela Corretores do painel.

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSessao } from "@/context/SessaoContext";
+import { corretores } from "@/lib/mock/corretores";
 import CorretorResponsavelCampo from "@/components/admin/CorretorResponsavelCampo";
 
 type Status = "lancamento" | "obras" | "pronto" | "breve";
@@ -38,6 +40,7 @@ const Toggle = ({ label, sub, defaultOn = false }: { label: string; sub: string;
 
 export default function AdminEmpreendimentoNovoPage() {
   const router = useRouter();
+  const { usuario } = useSessao();
   const [status, setStatus] = useState<Status>("lancamento");
   const [diferenciais, setDiferenciais] = useState([
     "🏊 Piscina com borda infinita",
@@ -46,6 +49,7 @@ export default function AdminEmpreendimentoNovoPage() {
     "🔐 Segurança 24h com portaria blindada",
     "🚗 3 vagas por unidade",
   ]);
+  const [corretorId, setCorretorId] = useState(usuario.id);
   const [showToast, setShowToast] = useState(false);
 
   const addDiferencial = () => setDiferenciais([...diferenciais, ""]);
@@ -148,7 +152,7 @@ export default function AdminEmpreendimentoNovoPage() {
 
         {/* COLUNA LATERAL */}
         <div>
-          <CorretorResponsavelCampo />
+          <CorretorResponsavelCampo opcoes={corretores} valor={corretorId} onChange={setCorretorId} />
 
           {/* STATUS */}
           <div style={{ ...card, marginBottom: "16px" }}>
