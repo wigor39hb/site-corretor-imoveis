@@ -331,7 +331,7 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 | `supabase/002_pagina_inicial_empresa.sql` | campos `favicon_url`, `carrossel`, `sobre_foto_url`, `home_sobre_titulo/texto/itens` + textos iniciais em nome da empresa | ✅ 16/10 |
 | `supabase/003_tiktok.sql` | campo `tiktok` | ✅ 16/10 |
 | `supabase/004_aparece_no_site.sql` | campo `aparece_no_site` em `perfis` (quem aparece em "Nossa Equipe"); contas já existentes começam escondidas | ✅ 19/10 |
-| `supabase/005_acesso_servidor.sql` | dá permissão nas tabelas à chave mestra (`service_role`), usada no servidor para cadastrar corretor | ⏳ |
+| `supabase/005_acesso_servidor.sql` | dá permissão nas tabelas à chave mestra (`service_role`), usada no servidor para cadastrar corretor | ✅ 19/10 |
 
 ⚠️ Se o código usa um campo que ainda não existe no banco, a tela dá erro ao salvar (aconteceu com o ícone antes de rodar o 002). Sempre rodar o arquivo novo antes de testar.
 
