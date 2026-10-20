@@ -224,6 +224,73 @@ export function destaquesImovel(i: Imovel): string[] {
   ].filter(Boolean);
 }
 
+// ---- Site público ----
+
+// "R$ 850.000" (centavos só quando houver); aluguel ganha "/mês".
+export function precoSite(i: Imovel): string {
+  if (i.preco === null) return "Consulte";
+  const valor = new Intl.NumberFormat("pt-BR", {
+    style: "currency", currency: "BRL", minimumFractionDigits: i.preco % 1 ? 2 : 0, maximumFractionDigits: 2,
+  }).format(i.preco);
+  return i.finalidade === "aluguel" ? `${valor}/mês` : valor;
+}
+
+export const rotuloPreco: Record<Finalidade, string> = {
+  venda: "Valor de venda",
+  aluguel: "Aluguel mensal",
+  venda_aluguel: "Venda ou aluguel",
+};
+
+// Selo no canto da foto. O estilo (cor) é escolhido pela tela.
+export function seloImovel(i: Imovel): { texto: string; estilo: "venda" | "aluguel" | "lancamento" } {
+  if (i.status === "lancamento") return { texto: "Lançamento", estilo: "lancamento" };
+  if (i.status === "reservado") return { texto: "Reservado", estilo: "aluguel" };
+  if (i.status === "vendido") return { texto: i.finalidade === "aluguel" ? "Alugado" : "Vendido", estilo: "aluguel" };
+  if (i.finalidade === "aluguel") return { texto: "Para alugar", estilo: "aluguel" };
+  return { texto: i.finalidade === "venda" ? "À venda" : "Venda e aluguel", estilo: "venda" };
+}
+
+const m2 = (n: number) => `${n.toLocaleString("pt-BR")} m²`;
+
+// Números do imóvel para os cartões e a barra da página do imóvel (só os preenchidos).
+export function numerosImovel(i: Imovel): { valor: string; rotulo: string }[] {
+  const n = (valor: number | null, um: string, varios: string) =>
+    valor ? [{ valor: String(valor), rotulo: valor === 1 ? um : varios }] : [];
+  return [
+    ...n(i.dormitorios, "Dormitório", "Dormitórios"),
+    ...n(i.suites, "Suíte", "Suítes"),
+    ...n(i.garagens, "Garagem", "Garagens"),
+    ...(i.areaPrivativa ? [{ valor: m2(i.areaPrivativa), rotulo: "Área privativa" }] : []),
+    ...(i.areaTotal ? [{ valor: m2(i.areaTotal), rotulo: "Área total" }] : []),
+  ];
+}
+
+// Tabela "Detalhes do imóvel": só as linhas preenchidas.
+export function fichaImovel(i: Imovel): [string, string][] {
+  const simNao = (v: boolean | null) => (v === null ? "" : v ? "Sim" : "Não");
+  const linhas: [string, string][] = [
+    ["Tipo", tipoLabel[i.tipo]],
+    ["Finalidade", finalidadeLabel[i.finalidade]],
+    ["Situação", i.situacao],
+    ["Perfil", i.perfil],
+    ["Posição solar", i.posicaoSolar],
+    ["Unidades por andar", i.unidadesPorAndar === null ? "" : String(i.unidadesPorAndar)],
+    ["Terreno", i.areaTerreno ? m2(i.areaTerreno) : ""],
+    ["Área construída", i.areaConstruida ? m2(i.areaConstruida) : ""],
+    ["Área privativa", i.areaPrivativa ? m2(i.areaPrivativa) : ""],
+    ["Área total", i.areaTotal ? m2(i.areaTotal) : ""],
+    ["Escriturado", simNao(i.escriturado)],
+    ["Averbado", simNao(i.averbado)],
+    ["Tem financiamento", simNao(i.temFinanciamento)],
+    ["Aceita financiamento", simNao(i.aceitaFinanciamento)],
+  ];
+  return linhas.filter(([, valor]) => valor);
+}
+
+// Fotos responsivas: o navegador escolhe a versão (800, 1600 ou 2560 px) pelo tamanho da tela.
+export const srcSetFoto = (caminho: string) =>
+  `${urlFoto(caminho, "p")} 800w, ${urlFoto(caminho, "m")} 1600w, ${urlFoto(caminho, "g")} 2560w`;
+
 // Preço digitado só com números: "85000000" → "R$ 850.000,00" (os 2 últimos são centavos).
 export function precoDeDigitos(digitos: string): number | null {
   const d = digitos.replace(/\D/g, "").slice(0, 14);

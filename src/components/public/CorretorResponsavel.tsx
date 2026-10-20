@@ -1,11 +1,14 @@
-import type { CorretorMock } from "@/lib/mock/corretores";
-
 // Cartão do corretor responsável, usado nas páginas de imóvel e empreendimento.
-export default function CorretorResponsavel({ corretor }: { corretor: CorretorMock }) {
+export default function CorretorResponsavel({ corretor }: { corretor: { nome: string; creci: string; fotoUrl?: string | null } }) {
   return (
     <div style={{ background: "var(--navy-900)", padding: "24px", display: "flex", alignItems: "center", gap: "16px" }} className="reveal reveal-delay-1">
-      <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: "rgba(201,169,110,0.15)", border: "1px solid rgba(201,169,110,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        <svg width="24" height="24" fill="none" stroke="white" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <div style={{ width: "52px", height: "52px", borderRadius: "50%", overflow: "hidden", background: "rgba(201,169,110,0.15)", border: "1px solid rgba(201,169,110,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        {corretor.fotoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={corretor.fotoUrl} alt={corretor.nome} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        ) : (
+          <svg width="24" height="24" fill="none" stroke="white" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        )}
       </div>
       <div>
         <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>Corretor responsável</div>
