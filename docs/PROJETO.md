@@ -2,7 +2,11 @@
 
 > Documento de continuidade. Registra as decisões, o que já foi feito e o que falta,
 > para retomar o trabalho sem precisar explicar tudo de novo.
-> **Última atualização:** 16/10/2026 (noite).
+> **Última atualização:** 19/10/2026 (fim do dia).
+
+### ▶️ Onde paramos (ler primeiro ao retomar)
+- **Amanhã (20/10): você vai testar a tela Imóveis** (roteiro na seção 9, sessão de 19/10). Conforme o resultado: corrigir o que aparecer ou marcar como ✅ e seguir para **Empreendimentos**, com a mesma separação de abas do admin.
+- Todo o trabalho está salvo no GitHub (último commit da sessão: ver `git log`).
 
 ---
 
@@ -213,7 +217,7 @@ Outros pontos combinados:
 - [x] A página Contato mostra **só os corretores ativos** (e marcados para aparecer no site).
 - [ ] **Página Sobre** ainda não lê do banco: o texto ("Sobre a imobiliária") e os **depoimentos** já são editáveis nas Configurações, mas só aparecem quando a página for adaptada.
 - [ ] Onde mais destacar o WhatsApp do dono? (Já aparece no rodapé e no botão da home.) Ideias: botão flutuante, o dono como primeiro da equipe com um selo.
-- [ ] O dono também anuncia imóveis como corretor? Se sim, ele é administrador **e** corretor.
+- [x] O dono também anuncia imóveis como corretor? **Sim** (19/10): o admin pode ser o corretor responsável e tem a aba "Meus imóveis" separada da "Imóveis da equipe" (ver 8.4 → Imóveis).
 
 ### Regras para definir antes do banco
 - [ ] Empreendimentos: só administradores publicam, ou corretores também? **Hoje os corretores também podem**, vendo só os seus.
@@ -352,3 +356,31 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 - Tamanhos: carrossel até 2560 px, foto do Sobre 1600 px, logo 1200 px (sem margem transparente), ícone 512×512 PNG; tudo WebP, menos o ícone.
 - Na tela Configurações: **imagens e carrossel salvam na hora; textos ao clicar em Salvar alterações**.
 - Componentes novos: `HeroCarrossel` (public), `Logo` e `IconeRede` (shared).
+
+---
+
+## 9. Diário das sessões
+
+### 19/10/2026
+**O que aconteceu antes:** na sessão anterior o PC travou (99% de memória) com vários processos "Node.js JavaScript Runtime" abertos (servidores do site que ficaram acumulados) e foi preciso desligar o PC. O código **não se perdeu**: estava na pasta, só não tinha sido salvo no Git. Nesta sessão ele foi conferido e salvo.
+- **Para evitar de novo:** só um `npm run dev` por vez; parar com Ctrl + C; se travar, Gerenciador de Tarefas → "Node.js JavaScript Runtime" → Finalizar tarefa (ou `taskkill /F /IM node.exe` no PowerShell). Salvar no GitHub ao fim de cada etapa.
+
+**Feito e salvo no GitHub:**
+1. **Corretores** (trabalho da sessão anterior, recuperado): lista, cadastro com senha inicial, edição (dados, papel, ativo, "Aparece no site", e-mail, nova senha, foto) e página Contato lendo a equipe do banco. Banco: `004` e `005` rodados por você ✅.
+2. **Imóveis ligado ao banco:** lista, cadastro, edição, mudar status e excluir (um ou vários). Formulário em branco com **Estado = MT** (a KL atua em Mato Grosso; os outros estados continuam na lista para o CEP funcionar), **Buscar CEP**, preço com máscara R$. "Salvar como rascunho" saiu (rascunho = desligar "Visível no site"). Fotos: aviso "em breve".
+3. **Separação para o admin** (sua ideia, para o dono não mexer sem querer no que é dos corretores): abas **"Meus imóveis"** e **"Imóveis da equipe"**, aviso amarelo, confirmação com o nome do dono dos imóveis e faixa "Você está editando um imóvel de Fulano". **Só o admin vê isso**; o corretor vê só os próprios imóveis, sem abas.
+
+**Decisões:**
+- O dono anuncia imóveis também (é admin e pode ser corretor responsável).
+- A mesma separação de abas vale para **Empreendimentos**.
+- Ajustes de tela pedidos pelo cliente entram com o tempo, conforme você for mostrando a ele.
+
+**Roteiro de teste da tela Imóveis (para 20/10):**
+1. `npm run dev` (só um!) e abrir `/admin/imoveis`.
+2. Cadastrar um imóvel em seu nome → aparece em "Meus imóveis". Testar o Buscar CEP (ex.: `78005-000`).
+3. Cadastrar outro trocando o "Corretor responsável" para um corretor de teste → vai para "Imóveis da equipe", com os avisos.
+4. Editar, mudar status e excluir nas duas abas.
+5. Entrar com um corretor de teste: ele deve ver só os próprios imóveis, sem abas.
+6. Se der erro, anotar a mensagem vermelha.
+
+**Ainda nos dados de exemplo:** contagens do Dashboard, páginas públicas de imóveis, telas de Empreendimentos.
