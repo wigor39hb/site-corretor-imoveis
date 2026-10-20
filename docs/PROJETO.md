@@ -2,11 +2,13 @@
 
 > Documento de continuidade. Registra as decisões, o que já foi feito e o que falta,
 > para retomar o trabalho sem precisar explicar tudo de novo.
-> **Última atualização:** 19/10/2026 (fim do dia).
+> **Última atualização:** 20/10/2026 (fim do dia).
 
 ### ▶️ Onde paramos (ler primeiro ao retomar)
-- **Amanhã (20/10): você vai testar a tela Imóveis** (roteiro na seção 9, sessão de 19/10). Conforme o resultado: corrigir o que aparecer ou marcar como ✅ e seguir para **Empreendimentos**, com a mesma separação de abas do admin.
-- Todo o trabalho está salvo no GitHub (último commit da sessão: ver `git log`).
+- **20/10:** cadastro de imóvel refeito, com fotos funcionando, e site público (home, lista e página do imóvel) lendo do banco. Tudo salvo no GitHub (commit `d772e76`). Detalhes na seção 9.
+- **Você vai mostrar o projeto ao cliente** rodando no notebook da sua mãe (`git clone`/`git pull` → copiar `.env.local` → `npm install` → `npm run dev`).
+- **Propostas comerciais:** rascunho das duas (licença e assinatura) na seção 2.9. **Falta você escolher os valores** para eu montar o documento para enviar ao cliente.
+- **Depois:** mapa com círculo da região do imóvel (perguntas em aberto na seção 5), tela de **Empreendimentos** (você vai explicar como vai funcionar) e os ajustes que o cliente pedir.
 
 ---
 
@@ -99,6 +101,46 @@ Outros pontos combinados:
     - dashboard à parte, **R$ 2.500–4.000**;
     - manutenção **R$ 400–700/mês**, já com a hospedagem incluída.
   - O contrato deve prever: limite de corretores; o que está fora do escopo (integração com portais ZAP/VivaReal/OLX, aplicativo, CRM); que o conteúdo (textos e fotos) é responsabilidade do cliente; quem paga os serviços externos.
+- **Atualização 20/10:** o cliente quer negociar antes do site ficar pronto. Ver a seção 2.9.
+
+### 2.9 Propostas comerciais (rascunho de 20/10/2026, valores ainda não escolhidos)
+O cliente vai escolher entre duas propostas.
+
+**Três cuidados:**
+1. **Na "compra", vender uma licença, não o código.** A licença é de uso perpétuo e não exclusivo: ele usa para sempre na imobiliária dele, mas o sistema continua sendo seu, e ele não pode revender nem copiar. Sem isso, você não poderia vender o mesmo sistema a outros clientes.
+2. **A assinatura de R$ 500 sozinha paga pouco.** Sobram ~R$ 250/mês, ou ~R$ 3 mil no ano. Por isso entra uma taxa de implantação.
+3. **Um cliente novo custa bem menos que R$ 250.** A Vercel Pro é por usuário e serve vários sites; cada projeto Supabase a mais custa ~US$ 10/mês. Cada cliente novo sai por ~R$ 60/mês. *(Confirmar os preços antes de fechar: são em dólar.)*
+
+**Proposta A: licença de uso (compra)**
+- Licença + implantação: **R$ 12–15 mil**, sendo 50% na assinatura do contrato e 50% com o site no ar.
+- Garantia de 90 dias para erros do sistema.
+- Suporte (correções): **R$ 120–150/hora**, mínimo 1 h, só quando ele chamar.
+- Atualizações (funções novas): orçamento por escopo, aprovado antes.
+- O cliente paga a operação (~R$ 250/mês) **direto**. As contas da Vercel, do Supabase e do domínio ficam **no nome dele**, com você como colaborador.
+- Definir no contrato: **correção** é o que já deveria funcionar e quebrou; **atualização** é algo novo ou diferente. Definir também o prazo de resposta.
+
+**Proposta B: assinatura de 12 meses**
+- Implantação de **R$ 2–3 mil** (uma vez) e mensalidade de **R$ 500–600**, com hospedagem, banco, fotos, backup e domínio inclusos. A operação é sua.
+- Correções inclusas. Pacotes de atualização são extra (mesma base de hora).
+- Opcional: pagamento anual adiantado com ~10% de desconto.
+- Cláusulas:
+  - multa de ~30% das mensalidades restantes se cancelar antes;
+  - reajuste anual pelo IPCA, com revisão se o dólar subir muito;
+  - ao cancelar, o site sai do ar e os dados são entregues a ele;
+  - o domínio fica no nome dele.
+
+**Desconto por indicação (só na assinatura):** 10% por cliente indicado **ativo**, com limite de 30%.
+- Exemplo com 3 indicados: ele paga R$ 350, ainda acima do custo de R$ 250. Cada indicado rende ~R$ 440 líquidos.
+- Regras:
+  - começa após o 1º pagamento do indicado e vale só enquanto o indicado estiver ativo e em dia;
+  - não vale sobre implantação nem sobre atualizações;
+  - não vira dinheiro.
+
+**Comparação (valores do meio):**
+- Licença: 1º ano ≈ R$ 16.500 (R$ 13.500 + operação); depois ≈ R$ 3.000/ano, mais o suporte avulso.
+- Assinatura: 1º ano ≈ R$ 9.100; depois ≈ R$ 6.600/ano.
+
+**Impostos:** no Simples, a partir de ~6%. Como pessoa física é mais. Falar com um contador antes de fechar.
 
 ---
 
@@ -226,9 +268,14 @@ Outros pontos combinados:
 - [ ] Quando um corretor sai da equipe, os imóveis dele somem ou são transferidos para outro corretor?
 - [ ] Fotos: teste com fotos reais, guardar o original, política para imóveis vendidos (ver 2.4).
 
+### Mapa do imóvel (próximo, pedido em 20/10)
+Em vez do ponto exato, o mapa mostra um **círculo marcando a região** do imóvel. A sugestão é usar OpenStreetMap (gratuito). Falta você responder:
+- [ ] Como o corretor informa o local no painel: clicando num ponto do mapa, ou digitando bairro e cidade?
+- [ ] Qual o raio do círculo? Sugestão: 300–500 m.
+
 ### Ajustes do painel
 - [ ] Você disse que viu outros ajustes a fazer no painel. **Ainda não me passou quais.**
-- [ ] Ainda só visual: envio de fotos, "Buscar CEP", sininho de notificações.
+- [ ] Ainda só visual: sininho de notificações. (Envio de fotos ✅ 20/10; "Buscar CEP" foi retirado junto com o endereço.)
 - [ ] Em telas pequenas, alguns campos lado a lado dos formulários ainda não se ajustam bem.
 
 ---
@@ -258,8 +305,10 @@ Verificações de código (rodar na pasta `fornt-end`):
 1. ~~Primeiro admin e login real~~ ✅ feito.
 2. ~~Meu perfil e Configurações do site~~ ✅ feitos.
 3. ~~Corretores~~ ✅ feito (19/10).
-4. Imóveis 🔄 pronto, testando (19/10). **Depois:** Empreendimentos → Fotos (3 versões).
-5. Adaptar as telas públicas restantes (Sobre, lista de Empreendimentos…) já lendo do banco.
+4. ~~Imóveis + fotos (3 versões) + páginas públicas de imóveis~~ ✅ feito (20/10).
+5. Mapa com círculo da região (aguardando suas respostas, seção 5).
+6. Empreendimentos (você vai explicar como funciona; o vínculo imóvel ↔ empreendimento foi retirado do formulário).
+7. Adaptar as telas públicas restantes (Sobre, lista de Empreendimentos…) já lendo do banco.
 
 ---
 
@@ -361,6 +410,32 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 ---
 
 ## 9. Diário das sessões
+
+### 20/10/2026
+**Feito e salvo no GitHub** (commits `ee8fa0b` e `d772e76`):
+
+1. **Novo cadastro de imóvel.** As seções ficaram nesta ordem:
+   - **Informações básicas**;
+   - **Destaques**: garagens, área privativa, situação (Pronta para morar / Em construção / Na planta), dormitórios e suítes. A área privativa é o mesmo campo da Ficha;
+   - **Fotos**;
+   - **Cômodos**, **Características**, **Condomínio** e **Proximidades**: listas livres, em que o corretor adiciona quantos itens quiser;
+   - **Ficha do imóvel**: unidades por andar, perfil, posição solar, escriturado, averbado, tem/aceita financiamento e as áreas de terreno, construída, privativa e total.
+
+   Saíram os campos antigos (área útil, quartos, banheiros, vagas, andar), **todo o endereço**, o Buscar CEP e o card "Empreendimento". Banco: `006` rodado por você ✅.
+2. **Fotos funcionando:**
+   - cada foto vira 3 versões WebP (800/1600/2560 px);
+   - as fotos sobem ao clicar em Salvar;
+   - a 1ª foto é a capa, e a ordem muda arrastando ou com ‹ ›;
+   - ao excluir o imóvel, as fotos são apagadas do Storage.
+3. **Site público lendo do banco:**
+   - home com os imóveis em destaque;
+   - lista **Imóveis** com filtros de tipo, finalidade, dormitórios e faixa de preço;
+   - página do imóvel com galeria, destaques, descrição, as 4 listas, a ficha, o contato do corretor e imóveis semelhantes;
+   - sem o botão "Solicitar Visita" (você pediu para tirar);
+   - o site mostra só o que um visitante vê: imóveis visíveis.
+4. **Propostas comerciais:** rascunho das duas opções na seção 2.9.
+
+**Pendências:** escolher os valores das propostas; responder as perguntas do mapa (seção 5); explicar a tela de Empreendimentos.
 
 ### 19/10/2026
 **O que aconteceu antes:** na sessão anterior o PC travou (99% de memória) com vários processos "Node.js JavaScript Runtime" abertos (servidores do site que ficaram acumulados) e foi preciso desligar o PC. O código **não se perdeu**: estava na pasta, só não tinha sido salvo no Git. Nesta sessão ele foi conferido e salvo.
