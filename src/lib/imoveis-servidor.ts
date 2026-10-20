@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { COLUNAS_IMOVEL, deImovel, type Imovel, type LinhaImovel, type Opcao } from "@/lib/imoveis";
+import { COLUNAS_IMOVEL, deImovel, type FotoImovel, type Imovel, type LinhaImovel, type Opcao } from "@/lib/imoveis";
 
 // Quem está logado no painel. Devolve o cliente da sessão, o id e se é admin.
 export async function usuarioPainel() {
@@ -20,7 +20,17 @@ export async function listarImoveisPainel(): Promise<Imovel[]> {
   if (!sessao.isAdmin) consulta = consulta.eq("corretor_id", sessao.uid);
   const { data, error } = await consulta;
   if (error) throw error;
-  return (data as LinhaImovel[]).map(deImovel);
+  const imoveis = (data as LinhaImovel[]).map(deImovel);
+
+  // Capa de cada imóvel = foto de menor ordem.
+  if (imoveis.length) {
+    const { data: fotos } = await sessao.supabase
+      .from("fotos").select("imovel_id, caminho").in("imovel_id", imoveis.map((i) => i.id)).order("ordem");
+    const capas = new Map<string, string>();
+    for (const f of fotos ?? []) if (!capas.has(f.imovel_id)) capas.set(f.imovel_id, f.caminho);
+    for (const i of imoveis) i.capa = capas.get(i.id) ?? null;
+  }
+  return imoveis;
 }
 
 export async function buscarImovel(id: string): Promise<Imovel | null> {
@@ -29,15 +39,15 @@ export async function buscarImovel(id: string): Promise<Imovel | null> {
   return data ? deImovel(data as LinhaImovel) : null;
 }
 
+export async function listarFotosImovel(id: string): Promise<FotoImovel[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("fotos").select("id, caminho, ordem").eq("imovel_id", id).order("ordem");
+  return data ?? [];
+}
+
 // Pessoas que podem ser "corretor responsável" (só o admin escolhe; o corretor publica em nome próprio).
 export async function listarOpcoesCorretores(): Promise<Opcao[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("perfis").select("id, nome, ativo").order("nome");
   return (data ?? []).map((p) => ({ id: p.id, nome: p.nome || "(sem nome)", ativo: p.ativo }));
-}
-
-export async function listarOpcoesEmpreendimentos(): Promise<Opcao[]> {
-  const supabase = await createClient();
-  const { data } = await supabase.from("empreendimentos").select("id, nome").order("nome");
-  return data ?? [];
 }

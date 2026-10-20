@@ -344,6 +344,7 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 | `supabase/003_tiktok.sql` | campo `tiktok` | ✅ 16/10 |
 | `supabase/004_aparece_no_site.sql` | campo `aparece_no_site` em `perfis` (quem aparece em "Nossa Equipe"); contas já existentes começam escondidas | ✅ 19/10 |
 | `supabase/005_acesso_servidor.sql` | dá permissão nas tabelas à chave mestra (`service_role`), usada no servidor para cadastrar corretor | ✅ 19/10 |
+| `supabase/006_ficha_imovel.sql` | novo cadastro de imóvel: Destaques (`garagens`, `situacao`, `dormitorios`, `suites` passa a aceitar vazio); campos da "Ficha do imóvel" (unidades por andar, perfil, posição solar, escriturado, averbado, tem/aceita financiamento, áreas de terreno/construída/privativa/total); listas livres `comodos`, `caracteristicas`, `proximidades` e `condominio`; **apaga** área útil, quartos, banheiros, vagas, andar e todo o endereço | ✅ 20/10 |
 
 ⚠️ Se o código usa um campo que ainda não existe no banco, a tela dá erro ao salvar (aconteceu com o ícone antes de rodar o 002). Sempre rodar o arquivo novo antes de testar.
 

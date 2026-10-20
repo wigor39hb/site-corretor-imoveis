@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { paraLinha, statusLabel, type Imovel, type StatusImovel } from "@/lib/imoveis";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { BUCKET_FOTOS } from "@/lib/helpers/imagem";
+import { arquivosDaFoto, paraLinha, statusLabel, type Imovel, type StatusImovel } from "@/lib/imoveis";
 
 // Ações da tela Imóveis. Usam a sessão de quem está logado, então as regras
 // do banco valem: o corretor só mexe nos próprios imóveis e o admin em todos.
@@ -10,8 +12,8 @@ import { paraLinha, statusLabel, type Imovel, type StatusImovel } from "@/lib/im
 type Resultado = { erro?: string; id?: string };
 
 function validar(i: Imovel): string | null {
-  if (!i.titulo.trim() || !i.descricao.trim() || !i.endereco.trim() || !i.cidade.trim()) {
-    return "Preencha título, descrição, endereço e cidade.";
+  if (!i.titulo.trim() || !i.descricao.trim()) {
+    return "Preencha título e descrição.";
   }
   if (!i.preco) return "Informe o preço.";
   if (!i.corretorId) return "Escolha o corretor responsável.";
@@ -49,12 +51,19 @@ export async function alterarStatusImoveis(ids: string[], status: StatusImovel):
   return {};
 }
 
-// As fotos ligadas ao imóvel saem junto (o banco apaga em cascata).
-// TODO etapa Fotos: apagar também os arquivos do Storage (pasta imoveis/<id>/).
+// As linhas das fotos saem junto (o banco apaga em cascata); os arquivos do
+// Storage são apagados depois, só dos imóveis que foram mesmo excluídos.
+// Isso usa a chave mestra porque, sem o imóvel, a regra do Storage já não reconhece o dono.
 export async function excluirImoveis(ids: string[]): Promise<Resultado> {
   const supabase = await createClient();
-  const { error } = await supabase.from("imoveis").delete().in("id", ids);
+  const { data: fotos } = await supabase.from("fotos").select("imovel_id, caminho").in("imovel_id", ids);
+  const { data: excluidos, error } = await supabase.from("imoveis").delete().in("id", ids).select("id");
   if (error) return { erro: "Não foi possível excluir." };
+
+  const apagados = new Set((excluidos ?? []).map((i) => i.id));
+  const arquivos = (fotos ?? []).filter((f) => apagados.has(f.imovel_id)).flatMap((f) => arquivosDaFoto(f.caminho));
+  if (arquivos.length) await createAdminClient().storage.from(BUCKET_FOTOS).remove(arquivos);
+
   atualizarTelas();
   return {};
 }

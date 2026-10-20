@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSessao } from "@/context/SessaoContext";
-import { resumoImovel, tipoIcone, tipoLabel, type Imovel, type Opcao, type StatusImovel } from "@/lib/imoveis";
+import { resumoImovel, tipoIcone, tipoLabel, urlFoto, type Imovel, type Opcao, type StatusImovel } from "@/lib/imoveis";
 import { formatPrice } from "@/lib/helpers/formatters";
 import { alterarStatusImoveis, excluirImoveis } from "@/app/admin/(painel)/imoveis/acoes";
 import { ConfirmDialog, useToast } from "@/components/admin/ui";
@@ -52,7 +52,7 @@ export default function ImoveisLista({ imoveis: todos, corretores, abaInicial }:
 
   const filtered = imoveis.filter((im) => {
     const q = search.toLowerCase();
-    const matchSearch = !q || [im.titulo, im.bairro, im.cidade, im.endereco].some((t) => t.toLowerCase().includes(q));
+    const matchSearch = !q || [im.titulo, ...im.proximidades].some((t) => t.toLowerCase().includes(q));
     const matchTipo = !filterTipo || im.tipo === filterTipo;
     const matchStatus = !filterStatus || im.status === filterStatus;
     const matchCorretor = !filterCorretor || im.corretorId === filterCorretor;
@@ -189,7 +189,7 @@ export default function ImoveisLista({ imoveis: todos, corretores, abaInicial }:
           <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--neutral-400)", fontSize: "15px" }}>🔍</span>
           <input
             type="text"
-            placeholder="Buscar imóvel por nome, bairro, cidade..."
+            placeholder="Buscar imóvel por título ou proximidade..."
             value={search}
             onChange={(e) => filtrar(() => setSearch(e.target.value))}
             style={{ ...fieldInput, width: "100%", paddingLeft: "40px", cursor: "text" }}
@@ -278,7 +278,12 @@ export default function ImoveisLista({ imoveis: todos, corretores, abaInicial }:
                   </td>
                   <td style={{ padding: "14px 20px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                      <div style={{ width: "48px", height: "48px", borderRadius: "8px", background: "linear-gradient(135deg,var(--neutral-200),var(--neutral-100))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>{tipoIcone[im.tipo]}</div>
+                      <div style={{ width: "48px", height: "48px", borderRadius: "8px", overflow: "hidden", background: "linear-gradient(135deg,var(--neutral-200),var(--neutral-100))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>
+                        {im.capa
+                          // eslint-disable-next-line @next/next/no-img-element
+                          ? <img src={urlFoto(im.capa, "p")} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          : tipoIcone[im.tipo]}
+                      </div>
                       <div>
                         <div style={{ fontSize: "14px", fontWeight: 500, color: "var(--neutral-900)" }}>{im.titulo}</div>
                         <div style={{ fontSize: "12px", color: "var(--neutral-400)", marginTop: "2px" }}>

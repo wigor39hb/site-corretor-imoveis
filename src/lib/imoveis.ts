@@ -31,12 +31,12 @@ export const statusLabel: Record<StatusImovel, string> = {
   lancamento: "Lançamento",
 };
 
-// A KL atua em Mato Grosso: o formulário já começa com MT.
-export const ESTADO_PADRAO = "MT";
-export const ESTADOS = [
-  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
-  "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
-];
+// Opções dos Destaques.
+export const SITUACOES = ["Pronta para morar", "Em construção", "Na planta"];
+
+// Opções da Ficha do imóvel.
+export const PERFIS = ["Residencial", "Comercial", "Residencial e comercial", "Rural"];
+export const POSICOES_SOLARES = ["Nascente (sol da manhã)", "Poente (sol da tarde)", "Norte", "Sul"];
 
 // Item de uma lista de escolha (corretor responsável, empreendimento).
 export type Opcao = { id: string; nome: string; ativo?: boolean };
@@ -50,26 +50,48 @@ export interface Imovel {
   finalidade: Finalidade;
   status: StatusImovel;
   preco: number | null;
-  area: number | null;
-  quartos: number;
-  suites: number;
-  banheiros: number;
-  vagas: number;
-  andar: string;
-  cep: string;
-  endereco: string;
-  numero: string;
-  complemento: string;
-  bairro: string;
-  cidade: string;
-  estado: string;
+  caracteristicas: string[]; // lista livre: "Armários planejados", "Gás individual"...
+  proximidades: string[]; // lista livre: "Shopping Pantanal", "Escola a 200 m"...
+  comodos: string[]; // lista livre: "3 quartos", "Suíte master", "Lavabo"...
+  condominio: string[]; // lista livre: "Piscina", "Academia", "Portaria 24h"...
   descricao: string;
   destaque: boolean;
   visivel: boolean;
+  // Destaques (informações rápidas do cartão do imóvel)
+  garagens: number | null;
+  situacao: string;
+  dormitorios: number | null;
+  suites: number | null;
+  // Ficha do imóvel (sim/não = null quando não informado)
+  unidadesPorAndar: number | null;
+  perfil: string;
+  posicaoSolar: string;
+  escriturado: boolean | null;
+  averbado: boolean | null;
+  temFinanciamento: boolean | null;
+  aceitaFinanciamento: boolean | null;
+  areaTerreno: number | null;
+  areaConstruida: number | null;
+  areaPrivativa: number | null;
+  areaTotal: number | null;
+  capa: string | null; // caminho da 1ª foto (só leitura; preenchido na lista do painel)
+}
+
+// Foto já salva. No Storage, cada foto é uma pasta com 3 versões: <caminho>/p.webp, m.webp, g.webp.
+export interface FotoImovel {
+  id: string;
+  caminho: string; // imoveis/<id do imóvel>/<id da foto>
+  ordem: number;
+}
+
+export const arquivosDaFoto = (caminho: string) => ["p", "m", "g"].map((v) => `${caminho}/${v}.webp`);
+
+export function urlFoto(caminho: string, versao: "p" | "m" | "g" = "m") {
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/fotos/${caminho}/${versao}.webp`;
 }
 
 export const COLUNAS_IMOVEL =
-  "id, corretor_id, empreendimento_id, titulo, tipo, finalidade, status, preco, area, quartos, suites, banheiros, vagas, andar, cep, endereco, numero, complemento, bairro, cidade, estado, descricao, destaque, visivel";
+  "id, corretor_id, empreendimento_id, titulo, tipo, finalidade, status, preco, caracteristicas, proximidades, comodos, condominio, descricao, destaque, visivel, garagens, situacao, dormitorios, suites, unidades_por_andar, perfil, posicao_solar, escriturado, averbado, tem_financiamento, aceita_financiamento, area_terreno, area_construida, area_privativa, area_total";
 
 export interface LinhaImovel {
   id: string;
@@ -80,22 +102,28 @@ export interface LinhaImovel {
   finalidade: Finalidade;
   status: StatusImovel;
   preco: number | string | null; // o Supabase devolve numeric como texto
-  area: number | string | null;
-  quartos: number;
-  suites: number;
-  banheiros: number;
-  vagas: number;
-  andar: string | null;
-  cep: string | null;
-  endereco: string | null;
-  numero: string | null;
-  complemento: string | null;
-  bairro: string | null;
-  cidade: string | null;
-  estado: string | null;
+  caracteristicas: string[] | null;
+  proximidades: string[] | null;
+  comodos: string[] | null;
+  condominio: string[] | null;
   descricao: string | null;
   destaque: boolean;
   visivel: boolean;
+  garagens: number | null;
+  situacao: string | null;
+  dormitorios: number | null;
+  suites: number | null;
+  unidades_por_andar: number | null;
+  perfil: string | null;
+  posicao_solar: string | null;
+  escriturado: boolean | null;
+  averbado: boolean | null;
+  tem_financiamento: boolean | null;
+  aceita_financiamento: boolean | null;
+  area_terreno: number | string | null;
+  area_construida: number | string | null;
+  area_privativa: number | string | null;
+  area_total: number | string | null;
 }
 
 const numero = (v: number | string | null) => (v === null || v === "" ? null : Number(v));
@@ -110,28 +138,36 @@ export function deImovel(l: LinhaImovel): Imovel {
     finalidade: l.finalidade,
     status: l.status,
     preco: numero(l.preco),
-    area: numero(l.area),
-    quartos: l.quartos,
-    suites: l.suites,
-    banheiros: l.banheiros,
-    vagas: l.vagas,
-    andar: l.andar ?? "",
-    cep: l.cep ?? "",
-    endereco: l.endereco ?? "",
-    numero: l.numero ?? "",
-    complemento: l.complemento ?? "",
-    bairro: l.bairro ?? "",
-    cidade: l.cidade ?? "",
-    estado: (l.estado ?? "").trim(),
+    caracteristicas: l.caracteristicas ?? [],
+    proximidades: l.proximidades ?? [],
+    comodos: l.comodos ?? [],
+    condominio: l.condominio ?? [],
     descricao: l.descricao ?? "",
     destaque: l.destaque,
     visivel: l.visivel,
+    garagens: l.garagens,
+    situacao: l.situacao ?? "",
+    dormitorios: l.dormitorios,
+    suites: l.suites,
+    unidadesPorAndar: l.unidades_por_andar,
+    perfil: l.perfil ?? "",
+    posicaoSolar: l.posicao_solar ?? "",
+    escriturado: l.escriturado,
+    averbado: l.averbado,
+    temFinanciamento: l.tem_financiamento,
+    aceitaFinanciamento: l.aceita_financiamento,
+    areaTerreno: numero(l.area_terreno),
+    areaConstruida: numero(l.area_construida),
+    areaPrivativa: numero(l.area_privativa),
+    areaTotal: numero(l.area_total),
+    capa: null,
   };
 }
 
 // Campos vazios viram null no banco.
 export function paraLinha(i: Imovel) {
   const texto = (v: string) => v.trim() || null;
+  const lista = (itens: string[]) => itens.map((c) => c.trim()).filter(Boolean);
   return {
     corretor_id: i.corretorId,
     empreendimento_id: i.empreendimentoId || null,
@@ -140,32 +176,52 @@ export function paraLinha(i: Imovel) {
     finalidade: i.finalidade,
     status: i.status,
     preco: i.preco,
-    area: i.area,
-    quartos: i.quartos,
-    suites: i.suites,
-    banheiros: i.banheiros,
-    vagas: i.vagas,
-    andar: texto(i.andar),
-    cep: texto(i.cep),
-    endereco: texto(i.endereco),
-    numero: texto(i.numero),
-    complemento: texto(i.complemento),
-    bairro: texto(i.bairro),
-    cidade: texto(i.cidade),
-    estado: texto(i.estado),
+    caracteristicas: lista(i.caracteristicas),
+    proximidades: lista(i.proximidades),
+    comodos: lista(i.comodos),
+    condominio: lista(i.condominio),
     descricao: texto(i.descricao),
     destaque: i.destaque,
     visivel: i.visivel,
+    garagens: i.garagens,
+    situacao: texto(i.situacao),
+    dormitorios: i.dormitorios,
+    suites: i.suites,
+    unidades_por_andar: i.unidadesPorAndar,
+    perfil: texto(i.perfil),
+    posicao_solar: texto(i.posicaoSolar),
+    escriturado: i.escriturado,
+    averbado: i.averbado,
+    tem_financiamento: i.temFinanciamento,
+    aceita_financiamento: i.aceitaFinanciamento,
+    area_terreno: i.areaTerreno,
+    area_construida: i.areaConstruida,
+    area_privativa: i.areaPrivativa,
+    area_total: i.areaTotal,
   };
 }
 
-// Linha da lista: "Cuiabá · 98 m² · 3 quartos"
+// Linha da lista: "Apartamento · 98 m²" (área total da Ficha do imóvel)
 export function resumoImovel(i: Imovel): string {
   return [
-    i.cidade,
-    i.area ? `${i.area.toLocaleString("pt-BR")} m²` : "",
-    i.quartos ? `${i.quartos} ${i.quartos === 1 ? "quarto" : "quartos"}` : "",
+    tipoLabel[i.tipo],
+    i.areaTotal ? `${i.areaTotal.toLocaleString("pt-BR")} m²` : "",
   ].filter(Boolean).join(" · ");
+}
+
+// Destaques prontos para mostrar: ["2 garagens", "105 m²", "Pronta para morar", "2 dormitórios, 2 suítes"].
+export function destaquesImovel(i: Imovel): string[] {
+  const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
+  const quartos = [
+    i.dormitorios ? plural(i.dormitorios, "dormitório", "dormitórios") : "",
+    i.suites ? plural(i.suites, "suíte", "suítes") : "",
+  ].filter(Boolean).join(", ");
+  return [
+    i.garagens ? plural(i.garagens, "garagem", "garagens") : "",
+    i.areaPrivativa ? `${i.areaPrivativa.toLocaleString("pt-BR")} m²` : "",
+    i.situacao,
+    quartos,
+  ].filter(Boolean);
 }
 
 // Preço digitado só com números: "85000000" → "R$ 850.000,00" (os 2 últimos são centavos).

@@ -104,6 +104,32 @@ export async function iconeQuadrado(arquivo: File, lado = 512): Promise<Blob> {
   return paraBlob(canvas, "image/png");
 }
 
+// Fotos de imóveis e empreendimentos: 3 versões em WebP, pelo lado maior.
+// O navegador escolhe a versão certa para cada tela. Mude aqui para ajustar tamanho e qualidade.
+export const VERSOES_FOTO = { p: 800, m: 1600, g: 2560 } as const;
+export const QUALIDADE_FOTO = 0.85;
+export type VersaoFoto = keyof typeof VERSOES_FOTO;
+
+// Gera as 3 versões a partir de um único arquivo (sem aumentar fotos menores que a versão).
+export async function comprimirVersoes(arquivo: File) {
+  const bitmap = await createImageBitmap(arquivo);
+  try {
+    const versoes = {} as Record<VersaoFoto, Blob>;
+    let largura = 0, altura = 0;
+    for (const [versao, lado] of Object.entries(VERSOES_FOTO) as [VersaoFoto, number][]) {
+      const escala = Math.min(1, lado / Math.max(bitmap.width, bitmap.height));
+      const { canvas, ctx } = carregarCanvas(Math.round(bitmap.width * escala), Math.round(bitmap.height * escala));
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      versoes[versao] = await paraBlob(canvas, "image/webp", QUALIDADE_FOTO);
+      largura = canvas.width;
+      altura = canvas.height;
+    }
+    return { versoes, largura, altura }; // largura/altura da maior versão
+  } finally {
+    bitmap.close();
+  }
+}
+
 // Envia o arquivo ao Storage e devolve o endereço público.
 export async function enviarArquivo(caminho: string, arquivo: Blob): Promise<string> {
   const supabase = createClient();
