@@ -18,14 +18,19 @@ const statusInfo: Record<StatusImovel, { label: string; badge: React.CSSProperti
   lancamento: { label: "Lançamento", badge: { background: "rgba(45,89,134,0.12)", color: "#2D5986" }, pill: { background: "rgba(45,89,134,0.1)", color: "#2D5986", border: "1px solid rgba(45,89,134,0.2)" } },
 };
 
-type Confirmacao = { ids: string[]; texto: string } | null;
+type Confirmacao = { titulo: string; texto: string; confirmar: string; acao: () => void } | null;
+export type Aba = "meus" | "equipe";
 
 // Lista de imóveis do painel. Chega pronta do servidor:
 // o corretor recebe só os próprios imóveis e o admin recebe todos.
-export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[]; corretores: Opcao[] }) {
+// O admin vê duas abas: "Meus imóveis" (os que ele anuncia) e "Imóveis da equipe"
+// (dos corretores), para não mexer sem querer no que não é dele.
+// O corretor não vê abas nem nada da equipe.
+export default function ImoveisLista({ imoveis: todos, corretores, abaInicial }: { imoveis: Imovel[]; corretores: Opcao[]; abaInicial: Aba }) {
   const router = useRouter();
-  const { isAdmin } = useSessao();
+  const { isAdmin, usuario } = useSessao();
   const { toast, mostrar } = useToast();
+  const [aba, setAba] = useState<Aba>(abaInicial);
   const [search, setSearch] = useState("");
   const [filterTipo, setFilterTipo] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
@@ -35,7 +40,15 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
   const [confirmacao, setConfirmacao] = useState<Confirmacao>(null);
   const [ocupado, setOcupado] = useState(false);
 
+  const equipe = isAdmin && aba === "equipe";
+  const imoveis = !isAdmin ? todos : todos.filter((im) => (im.corretorId === usuario.id) !== equipe);
+
   const nomeCorretor = (id: string) => corretores.find((c) => c.id === id)?.nome ?? "—";
+  // "de Ana e Bruno" — usado nas confirmações da aba da equipe.
+  const donos = (ids: string[]) => {
+    const nomes = Array.from(new Set(todos.filter((im) => ids.includes(im.id)).map((im) => nomeCorretor(im.corretorId))));
+    return nomes.length > 1 ? `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}` : nomes[0] ?? "";
+  };
 
   const filtered = imoveis.filter((im) => {
     const q = search.toLowerCase();
@@ -54,6 +67,12 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
   // Qualquer mudança de filtro volta para a página 1 e limpa a seleção.
   const filtrar = (fn: () => void) => { fn(); setPage(1); setSelected([]); };
 
+  // Troca de aba limpa os filtros e fica guardada no endereço (para voltar nela depois de editar).
+  const trocarAba = (nova: Aba) => {
+    filtrar(() => { setAba(nova); setFilterCorretor(""); setFilterStatus(""); });
+    window.history.replaceState(null, "", nova === "equipe" ? "/admin/imoveis?aba=equipe" : "/admin/imoveis");
+  };
+
   const allChecked = visiveis.length > 0 && visiveis.every((im) => selected.includes(im.id));
   const someChecked = selected.length > 0 && !allChecked;
 
@@ -63,6 +82,7 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
 
   const alterarStatus = async (status: StatusImovel | "") => {
     if (!status || ocupado) return;
+    setConfirmacao(null);
     setOcupado(true);
     const { erro } = await alterarStatusImoveis(selected, status);
     setOcupado(false);
@@ -73,6 +93,29 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
     mostrar(`${selected.length} imóvel(is) marcado(s) como ${statusInfo[status].label}`);
     setSelected([]);
     router.refresh();
+  };
+
+  // Na aba da equipe, mudar status também pede confirmação, mostrando de quem são os imóveis.
+  const pedirAlterarStatus = (status: StatusImovel | "") => {
+    if (!status) return;
+    if (!equipe) return alterarStatus(status);
+    setConfirmacao({
+      titulo: "Alterar imóveis da equipe?",
+      texto: `Os ${selected.length} imóveis selecionados são de ${donos(selected)} e serão marcados como ${statusInfo[status].label}.`,
+      confirmar: "Alterar status",
+      acao: () => alterarStatus(status),
+    });
+  };
+
+  const pedirExcluir = (ids: string[], nome?: string) => {
+    const quais = nome ? `"${nome}"` : `Os ${ids.length} imóveis selecionados`;
+    const deQuem = equipe ? ` (${ids.length === 1 ? "imóvel" : "imóveis"} de ${donos(ids)})` : "";
+    setConfirmacao({
+      titulo: ids.length === 1 ? "Excluir imóvel?" : "Excluir imóveis?",
+      texto: `${quais}${deQuem} e as fotos serão excluídos do site. Isso não pode ser desfeito.`,
+      confirmar: "Excluir",
+      acao: () => excluir(ids),
+    });
   };
 
   const excluir = async (ids: string[]) => {
@@ -107,12 +150,37 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
       {toast}
       {confirmacao && (
         <ConfirmDialog
-          titulo="Excluir imóvel?"
+          titulo={confirmacao.titulo}
           texto={confirmacao.texto}
-          confirmar="Excluir"
-          onConfirmar={() => excluir(confirmacao.ids)}
+          confirmar={confirmacao.confirmar}
+          onConfirmar={confirmacao.acao}
           onCancelar={() => setConfirmacao(null)}
         />
+      )}
+
+      {/* ABAS (só admin) */}
+      {isAdmin && (
+        <div style={{ display: "flex", gap: "4px", borderBottom: "1px solid var(--neutral-200)", marginBottom: "20px" }}>
+          {([["meus", "Meus imóveis"], ["equipe", "Imóveis da equipe"]] as [Aba, string][]).map(([valor, rotulo]) => {
+            const ativa = aba === valor;
+            const total = todos.filter((im) => (im.corretorId === usuario.id) !== (valor === "equipe")).length;
+            return (
+              <button key={valor} onClick={() => trocarAba(valor)} style={{
+                padding: "10px 18px", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-sans)",
+                fontSize: "14px", fontWeight: ativa ? 600 : 500, color: ativa ? "var(--neutral-900)" : "var(--neutral-400)",
+                borderBottom: `2px solid ${ativa ? "var(--gold-500)" : "transparent"}`, marginBottom: "-1px",
+              }}>
+                {rotulo} <span style={{ fontSize: "12px", color: "var(--neutral-400)", fontWeight: 400 }}>({total})</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {equipe && (
+        <div style={{ background: "rgba(212,144,10,0.08)", border: "1px solid rgba(212,144,10,0.3)", borderRadius: "10px", padding: "14px 18px", marginBottom: "20px", fontSize: "13px", color: "var(--neutral-600)", fontFamily: "var(--font-sans)", lineHeight: 1.6 }}>
+          ⚠️ Estes imóveis são <strong>dos corretores</strong>. Alterações aqui afetam o anúncio deles.
+        </div>
       )}
 
       {/* FILTROS */}
@@ -131,10 +199,10 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
           <option value="">Todos os tipos</option>
           {Object.entries(tipoLabel).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
-        {isAdmin && (
+        {equipe && (
           <select style={fieldInput} value={filterCorretor} onChange={(e) => filtrar(() => setFilterCorretor(e.target.value))}>
             <option value="">Todos os corretores</option>
-            {corretores.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+            {corretores.filter((c) => c.id !== usuario.id).map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
           </select>
         )}
       </div>
@@ -159,7 +227,7 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
       {/* TABELA */}
       <div style={{ background: "#fff", border: "1px solid var(--neutral-200)", borderRadius: "12px", overflow: "hidden" }}>
         <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--neutral-100)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--neutral-900)" }}>{isAdmin ? "Lista de imóveis" : "Meus imóveis"}</span>
+          <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--neutral-900)" }}>{equipe ? "Imóveis da equipe" : "Meus imóveis"}</span>
           <span style={{ fontSize: "13px", color: "var(--neutral-400)" }}>{filtered.length} imóveis</span>
         </div>
 
@@ -167,12 +235,12 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
         {selected.length > 0 && (
           <div style={{ background: "var(--navy-900)", color: "#fff", padding: "12px 24px", display: "flex", alignItems: "center", gap: "16px", fontSize: "13px", flexWrap: "wrap" }}>
             <span><span style={{ color: "var(--gold-400)", fontWeight: 600 }}>{selected.length}</span> selecionados</span>
-            <select value="" disabled={ocupado} onChange={(e) => alterarStatus(e.target.value as StatusImovel | "")} style={{ ...bulkBtn, background: "var(--navy-900)" }}>
+            <select value="" disabled={ocupado} onChange={(e) => pedirAlterarStatus(e.target.value as StatusImovel | "")} style={{ ...bulkBtn, background: "var(--navy-900)" }}>
               <option value="">Alterar status para…</option>
               {Object.entries(statusInfo).map(([v, s]) => <option key={v} value={v}>{s.label}</option>)}
             </select>
             <button
-              onClick={() => setConfirmacao({ ids: selected, texto: `Os ${selected.length} imóveis selecionados e as fotos deles serão excluídos do site. Isso não pode ser desfeito.` })}
+              onClick={() => pedirExcluir(selected)}
               disabled={ocupado}
               style={{ ...bulkBtn, border: "1px solid rgba(224,82,82,0.4)", color: "#F08080" }}
             >
@@ -188,7 +256,7 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
                 <th style={{ width: "40px", padding: "12px 20px 12px 24px", background: "var(--neutral-50)", borderBottom: "1px solid var(--neutral-200)", textAlign: "left" }}>
                   <input type="checkbox" checked={allChecked} ref={(el) => { if (el) el.indeterminate = someChecked; }} onChange={toggleAll} style={{ accentColor: "var(--gold-500)", width: "15px", height: "15px", cursor: "pointer" }} />
                 </th>
-                {["Imóvel", "Tipo", "Preço", ...(isAdmin ? ["Corretor"] : []), "Status", "Ações"].map((h) => (
+                {["Imóvel", "Tipo", "Preço", ...(equipe ? ["Corretor"] : []), "Status", "Ações"].map((h) => (
                   <th key={h} style={{ padding: "12px 20px", background: "var(--neutral-50)", borderBottom: "1px solid var(--neutral-200)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--neutral-400)", textAlign: "left" }}>{h}</th>
                 ))}
               </tr>
@@ -196,7 +264,7 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
             <tbody>
               {visiveis.length === 0 && (
                 <tr>
-                  <td colSpan={isAdmin ? 7 : 6} style={{ padding: "48px 24px", textAlign: "center", fontSize: "14px", color: "var(--neutral-400)" }}>
+                  <td colSpan={equipe ? 7 : 6} style={{ padding: "48px 24px", textAlign: "center", fontSize: "14px", color: "var(--neutral-400)" }}>
                     Nenhum imóvel encontrado.{" "}
                     <Link href="/admin/imoveis/novo" style={{ color: "var(--gold-500)", fontWeight: 500 }}>Cadastrar imóvel</Link>
                   </td>
@@ -221,7 +289,7 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
                   </td>
                   <td style={{ padding: "14px 20px", fontSize: "14px", color: "var(--neutral-600)" }}>{tipoLabel[im.tipo]}</td>
                   <td style={{ padding: "14px 20px", fontSize: "14px", color: "var(--neutral-600)", whiteSpace: "nowrap" }}>{formatPrice(im.preco)}</td>
-                  {isAdmin && (
+                  {equipe && (
                     <td style={{ padding: "14px 20px", fontSize: "14px", color: "var(--neutral-600)", whiteSpace: "nowrap" }}>{nomeCorretor(im.corretorId)}</td>
                   )}
                   <td style={{ padding: "14px 20px" }}>
@@ -231,7 +299,7 @@ export default function ImoveisLista({ imoveis, corretores }: { imoveis: Imovel[
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                       <Link href={`/admin/imoveis/${im.id}/editar`} style={{ width: "32px", height: "32px", borderRadius: "6px", border: "1px solid var(--neutral-200)", background: "none", cursor: "pointer", fontSize: "15px", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }} title="Editar">✏️</Link>
                       <button
-                        onClick={() => setConfirmacao({ ids: [im.id], texto: `"${im.titulo}" e as fotos dele serão excluídos do site. Isso não pode ser desfeito.` })}
+                        onClick={() => pedirExcluir([im.id], im.titulo)}
                         style={{ width: "32px", height: "32px", borderRadius: "6px", border: "1px solid var(--neutral-200)", background: "none", cursor: "pointer", fontSize: "15px", display: "flex", alignItems: "center", justifyContent: "center" }}
                         title="Excluir"
                       >🗑</button>

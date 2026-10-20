@@ -47,6 +47,11 @@ export default function ImovelForm({ inicial, corretores, empreendimentos }: {
   const [salvando, setSalvando] = useState(false);
   const [buscandoCep, setBuscandoCep] = useState(false);
 
+  // Admin mexendo em imóvel de corretor: aviso no topo e, ao terminar, volta para a aba da equipe.
+  const deOutro = dados.corretorId !== usuario.id;
+  const nomeDono = corretores.find((c) => c.id === dados.corretorId)?.nome ?? "outro corretor";
+  const voltarPara = deOutro ? "/admin/imoveis?aba=equipe" : "/admin/imoveis";
+
   const set = <K extends keyof Imovel>(campo: K, valor: Imovel[K]) =>
     setDados((d) => ({ ...d, [campo]: valor }));
   const inteiro = (v: string) => Math.max(0, parseInt(v, 10) || 0);
@@ -61,7 +66,7 @@ export default function ImovelForm({ inicial, corretores, empreendimentos }: {
     }
     mostrar(novo ? (dados.visivel ? "Imóvel publicado!" : "Imóvel salvo (fora do site).") : "Alterações salvas!");
     router.refresh();
-    setTimeout(() => router.push("/admin/imoveis"), 1500);
+    setTimeout(() => router.push(voltarPara), 1500);
   };
 
   // Preenche endereço, bairro, cidade e estado pelo CEP (serviço gratuito ViaCEP).
@@ -98,6 +103,11 @@ export default function ImovelForm({ inicial, corretores, empreendimentos }: {
   return (
     <>
       {toast}
+      {deOutro && (
+        <div style={{ maxWidth: "1200px", background: "rgba(212,144,10,0.08)", border: "1px solid rgba(212,144,10,0.3)", borderRadius: "10px", padding: "14px 18px", marginBottom: "20px", fontSize: "13px", color: "var(--neutral-600)", fontFamily: "var(--font-sans)", lineHeight: 1.6 }}>
+          ⚠️ {novo ? "Este imóvel será cadastrado em nome de " : "Você está editando um imóvel de "}<strong>{nomeDono}</strong>.
+        </div>
+      )}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "24px", alignItems: "start", maxWidth: "1200px" }} className="admin-form-grid">
 
         {/* COLUNA PRINCIPAL */}
@@ -268,7 +278,7 @@ export default function ImovelForm({ inicial, corretores, empreendimentos }: {
             <button id="topbar-publicar" onClick={handleSalvar} disabled={salvando} style={{ ...btnPrimary, opacity: salvando ? 0.7 : 1 }}>
               {salvando ? "Salvando..." : novo ? "Publicar imóvel" : "Salvar alterações"}
             </button>
-            <a href="/admin/imoveis" style={btnOutline}>Cancelar</a>
+            <a href={voltarPara} style={btnOutline}>Cancelar</a>
           </div>
         </div>
       </div>

@@ -321,6 +321,7 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
     - Ainda nos dados de exemplo: Dashboard (contagem de corretores), escolha de corretor nos formulários de imóvel/empreendimento e cartão do corretor nos detalhes do site — entram junto com Imóveis/Empreendimentos.
   - [x] **Imóveis** (19/10): lista, cadastro e edição pelo banco (`ImoveisLista.tsx`, `ImovelForm.tsx`, `imoveis/acoes.ts`, `lib/imoveis*.ts`). ⏳ falta você testar.
     - Corretor vê só os próprios; admin vê todos e escolhe o corretor responsável (lista real, só ativos).
+    - **Admin tem duas abas** (decisão 19/10, para o dono não mexer sem querer no que é dos corretores): **"Meus imóveis"** (abre primeiro, os que ele anuncia) e **"Imóveis da equipe"** (dos corretores, com coluna/filtro de corretor e aviso amarelo). Na aba da equipe, mudar status e excluir pedem confirmação mostrando de quem são os imóveis; o formulário mostra "Você está editando um imóvel de Fulano". **O corretor não vê abas nem nada da equipe.** Fazer o mesmo em Empreendimentos.
     - Formulário começa em branco, com **Estado = MT**; **Buscar CEP** (ViaCEP) preenche endereço, bairro, cidade e estado; preço digitado só com números (máscara R$).
     - Obrigatórios: título, descrição, endereço, cidade e preço.
     - "Salvar como rascunho" saiu: rascunho = desligar **"Visível no site"**.
