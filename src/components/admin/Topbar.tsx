@@ -28,7 +28,12 @@ type TopbarAction =
   | { type: "link"; href: string; label: string; variant: "primary" | "outline" }
   | { type: "button"; id: string; label: string; variant: "primary" | "outline" };
 
-function getActions(pathname: string, isAdmin: boolean): TopbarAction[] {
+type Permissoes = { isAdmin: boolean; cuidaDeImoveis: boolean; cuidaDeEmpreendimentos: boolean };
+
+function getActions(pathname: string, { isAdmin, cuidaDeImoveis, cuidaDeEmpreendimentos }: Permissoes): TopbarAction[] {
+  // Sem botões nas telas que a pessoa não pode usar (elas mostram "Acesso restrito").
+  if (pathname.startsWith("/admin/imoveis") && !cuidaDeImoveis) return [];
+  if (pathname.startsWith("/admin/empreendimentos") && !cuidaDeEmpreendimentos) return [];
   if (pathname === "/admin/imoveis") {
     return [{ type: "link", href: "/admin/imoveis/novo", label: "+ Novo Imóvel", variant: "primary" }];
   }
@@ -110,8 +115,7 @@ export default function Topbar() {
   const { toggle } = useSidebar();
   const pathname = usePathname();
   const page = getPageMeta(pathname);
-  const { isAdmin } = useSessao();
-  const actions = getActions(pathname, isAdmin);
+  const actions = getActions(pathname, useSessao());
 
   const handleBtnClick = (id: string) => {
     const el = document.getElementById(id);

@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSessao } from "@/context/SessaoContext";
-import { corretores } from "@/lib/mock/corretores";
-import CorretorResponsavelCampo from "@/components/admin/CorretorResponsavelCampo";
+import { AcessoRestrito } from "@/components/admin/ui";
 
 type Status = "lancamento" | "obras" | "pronto" | "breve";
 
@@ -40,7 +39,7 @@ const Toggle = ({ label, sub, defaultOn = false }: { label: string; sub: string;
 
 export default function AdminEmpreendimentoNovoPage() {
   const router = useRouter();
-  const { usuario } = useSessao();
+  const { cuidaDeEmpreendimentos } = useSessao();
   const [status, setStatus] = useState<Status>("lancamento");
   const [diferenciais, setDiferenciais] = useState([
     "🏊 Piscina com borda infinita",
@@ -49,7 +48,6 @@ export default function AdminEmpreendimentoNovoPage() {
     "🔐 Segurança 24h com portaria blindada",
     "🚗 3 vagas por unidade",
   ]);
-  const [corretorId, setCorretorId] = useState(usuario.id);
   const [showToast, setShowToast] = useState(false);
 
   const addDiferencial = () => setDiferenciais([...diferenciais, ""]);
@@ -60,6 +58,8 @@ export default function AdminEmpreendimentoNovoPage() {
     setShowToast(true);
     setTimeout(() => { router.push("/admin/empreendimentos"); }, 2000);
   };
+
+  if (!cuidaDeEmpreendimentos) return <AcessoRestrito texto="Esta área é exclusiva dos administradores e assistentes da imobiliária." />;
 
   return (
     <>
@@ -152,8 +152,6 @@ export default function AdminEmpreendimentoNovoPage() {
 
         {/* COLUNA LATERAL */}
         <div>
-          <CorretorResponsavelCampo opcoes={corretores} valor={corretorId} onChange={setCorretorId} />
-
           {/* STATUS */}
           <div style={{ ...card, marginBottom: "16px" }}>
             <div style={{ ...cardHeader, padding: "16px 20px" }}><div style={cardTitle}>Status do empreendimento</div></div>

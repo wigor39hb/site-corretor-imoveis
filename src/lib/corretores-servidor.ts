@@ -43,7 +43,8 @@ export async function buscarCorretor(id: string): Promise<Corretor | null> {
   return dePerfil(data as LinhaPerfil, auth.user?.email ?? "");
 }
 
-// Seção "Nossa Equipe" do site: só corretores ativos e marcados para aparecer.
+// Seção "Nossa Equipe" do site: só corretores ativos e marcados para aparecer
+// (assistentes não aparecem no site).
 export async function listarEquipe(): Promise<Corretor[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -51,6 +52,7 @@ export async function listarEquipe(): Promise<Corretor[]> {
     .select(COLUNAS_PERFIL)
     .eq("ativo", true)
     .eq("aparece_no_site", true)
+    .neq("papel", "assistente")
     .order("ordem")
     .order("nome");
   if (error) {

@@ -109,16 +109,16 @@ export default function CorretoresLista({ corretores }: { corretores: (Corretor 
                     </td>
                     <td style={td}>{formatWhatsapp(c.whatsapp) || "—"}</td>
                     <td style={td}>
-                      <span style={{ fontSize: "11px", fontWeight: 600, padding: "3px 10px", borderRadius: "20px", ...(c.papel === "admin" ? { background: "rgba(201,169,110,0.15)", color: "#9A7B3F" } : { background: "rgba(45,89,134,0.1)", color: "#2D5986" }) }}>
+                      <span style={{ fontSize: "11px", fontWeight: 600, padding: "3px 10px", borderRadius: "20px", ...(c.papel === "admin" ? { background: "rgba(201,169,110,0.15)", color: "#9A7B3F" } : c.papel === "assistente" ? { background: "rgba(124,92,181,0.12)", color: "#6B4FA3" } : { background: "rgba(45,89,134,0.1)", color: "#2D5986" }) }}>
                         {papelLabel[c.papel]}
                       </span>
                     </td>
-                    <td style={td}>{c.totalImoveis}</td>
+                    <td style={td}>{c.papel === "assistente" ? "—" : c.totalImoveis}</td>
                     <td style={td}>
                       <span style={{ fontSize: "11px", fontWeight: 600, padding: "3px 10px", borderRadius: "20px", ...(c.ativo ? { background: "rgba(61,170,111,0.12)", color: "#2A9D6A" } : { background: "var(--neutral-100)", color: "var(--neutral-400)" }) }}>
                         {c.ativo ? "Ativo" : "Inativo"}
                       </span>
-                      {c.ativo && !c.apareceNoSite && (
+                      {c.ativo && !c.apareceNoSite && c.papel !== "assistente" && (
                         <div style={{ fontSize: "11px", color: "var(--neutral-400)", marginTop: "4px" }}>Fora do site</div>
                       )}
                     </td>

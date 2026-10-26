@@ -5,6 +5,7 @@
 > **Última atualização:** 20/10/2026 (fim do dia).
 
 ### ▶️ Onde paramos (ler primeiro ao retomar)
+- **26/10:** novo tipo de conta **Assistente** (cuida dos empreendimentos) e Empreendimentos só para admin + assistente. Banco atualizado (007 rodado) e testado por você. Ver seção 9.
 - **20/10:** cadastro de imóvel refeito, com fotos funcionando, e site público (home, lista e página do imóvel) lendo do banco. Tudo salvo no GitHub (commit `d772e76`). Detalhes na seção 9.
 - **Você vai mostrar o projeto ao cliente** rodando no notebook da sua mãe (`git clone`/`git pull` → copiar `.env.local` → `npm install` → `npm run dev`).
 - **Propostas comerciais:** rascunho das duas (licença e assinatura) na seção 2.9. **Falta você escolher os valores** para eu montar o documento para enviar ao cliente.
@@ -43,7 +44,8 @@
 | Papel | Pode fazer |
 |---|---|
 | **Administrador** (você e o dono) | Tudo: cadastrar, editar e desativar corretores; editar as configurações do site; ver e editar todas as publicações |
-| **Corretor** | Só editar o **próprio perfil** e as **próprias publicações** (imóveis e empreendimentos). Não vê nem mexe em outros usuários |
+| **Assistente** (26/10/2026) | Cuida de **todos os empreendimentos** (ver, criar, editar, excluir, fotos) e edita o próprio perfil. **Não** mexe em imóveis, não vê Corretores nem Configurações e **não aparece no site** |
+| **Corretor** | Só editar o **próprio perfil** e os **próprios imóveis**. Não vê nem mexe em outros usuários. **Não tem acesso a Empreendimentos** (decisão de 26/10/2026) |
 
 ### 2.3 Infraestrutura (hospedagem)
 **Escolha: Vercel + Supabase + Registro.br**
@@ -262,7 +264,8 @@ O cliente vai escolher entre duas propostas.
 - [x] O dono também anuncia imóveis como corretor? **Sim** (19/10): o admin pode ser o corretor responsável e tem a aba "Meus imóveis" separada da "Imóveis da equipe" (ver 8.4 → Imóveis).
 
 ### Regras para definir antes do banco
-- [ ] Empreendimentos: só administradores publicam, ou corretores também? **Hoje os corretores também podem**, vendo só os seus.
+- [x] Empreendimentos: **só administradores e assistentes** (26/10). O menu some para o corretor, as telas mostram "Acesso restrito" e o banco bloqueia (arquivo 007).
+- [x] WhatsApp dos empreendimentos no site: **sempre o do dono** (26/10). Ele distribui os interessados para os corretores. Não existe mais "corretor responsável" no empreendimento (o campo saiu do formulário). ⏳ A página pública do empreendimento ainda usa dados de exemplo com cartão de corretor: trocar pelo WhatsApp do dono quando a tela Empreendimentos for ligada ao banco.
 - [ ] Publicações de corretor precisam de aprovação de um admin antes de ir para o site?
 - [ ] O formulário de contato manda a mensagem para o admin ou para o corretor do imóvel?
 - [ ] Quando um corretor sai da equipe, os imóveis dele somem ou são transferidos para outro corretor?
@@ -318,6 +321,7 @@ Verificações de código (rodar na pasta `fornt-end`):
 - **Projeto novo, só da KL**, criado em 16/10/2026 (plano Free, região **São Paulo**). O projeto Supabase antigo que estava no `.env.local` era de outra coisa e **não é usado**.
 - Na criação: **"Habilitar API de Dados" marcada** e **"Expor automaticamente novas tabelas" desmarcada** (tabela nova nasce trancada; o acesso é liberado de propósito no SQL, com `grant`). ⚠️ Por isso, **toda tabela nova criada no futuro precisa de `grant` (para `anon`, `authenticated` **e `service_role`**) + regras RLS** no próprio arquivo de mudança.
 - A senha do banco (Database Password) ficou guardada com você.
+- ⚠️ **Plano Free pausa após 7 dias sem uso** (aconteceu em 26/10/2026). Não perde nada: no painel do Supabase, clicar em **Resume project** (as chaves continuam as mesmas). Abrir o site/painel ao menos 1x por semana durante o desenvolvimento.
 
 ### 8.2 Chaves (`.env.local`, nunca vai para o GitHub)
 | Variável | Valor | Onde achar no Supabase |
@@ -394,6 +398,7 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 | `supabase/004_aparece_no_site.sql` | campo `aparece_no_site` em `perfis` (quem aparece em "Nossa Equipe"); contas já existentes começam escondidas | ✅ 19/10 |
 | `supabase/005_acesso_servidor.sql` | dá permissão nas tabelas à chave mestra (`service_role`), usada no servidor para cadastrar corretor | ✅ 19/10 |
 | `supabase/006_ficha_imovel.sql` | novo cadastro de imóvel: Destaques (`garagens`, `situacao`, `dormitorios`, `suites` passa a aceitar vazio); campos da "Ficha do imóvel" (unidades por andar, perfil, posição solar, escriturado, averbado, tem/aceita financiamento, áreas de terreno/construída/privativa/total); listas livres `comodos`, `caracteristicas`, `proximidades` e `condominio`; **apaga** área útil, quartos, banheiros, vagas, andar e todo o endereço | ✅ 20/10 |
+| `supabase/007_assistente_empreendimentos.sql` | papel novo `assistente`; empreendimentos (e as fotos deles) só admin e assistente veem no painel, criam, editam e excluem; `corretor_id` do empreendimento deixa de ser obrigatório; o site mostra todos os visíveis; assistente não cria imóveis | ✅ 26/10 |
 
 ⚠️ Se o código usa um campo que ainda não existe no banco, a tela dá erro ao salvar (aconteceu com o ícone antes de rodar o 002). Sempre rodar o arquivo novo antes de testar.
 
@@ -410,6 +415,14 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 ---
 
 ## 9. Diário das sessões
+
+### 26/10/2026
+- O Supabase tinha pausado o projeto (7 dias sem uso, plano Free). Você clicou em **Resume project** e voltou tudo, sem perder dados.
+- **Novo tipo de conta: Assistente.** Cadastrada pela tela Corretores (opção "Assistente" em Papel; o "Aparece no site" some para ela). Menu da assistente: Dashboard, Empreendimentos e Meu perfil.
+- **Empreendimentos só para admin e assistente:** some do menu do corretor; lista, novo e editar mostram "Acesso restrito" para quem não pode; os botões do topo também. A assistente vê "Acesso restrito" em Imóveis e não entra na lista de "corretor responsável" dos imóveis nem em "Nossa Equipe".
+- A sessão do painel ganhou `cuidaDeEmpreendimentos` e `cuidaDeImoveis` (`SessaoContext`); o menu usa `papeis` por item.
+- Banco: `007_assistente_empreendimentos.sql` rodado e testado por você ✅.
+- ⏳ O Dashboard ainda usa contagens de exemplo e mostra os mesmos cartões para todos; ajustar por papel quando for ligado ao banco.
 
 ### 20/10/2026
 **Feito e salvo no GitHub** (commits `ee8fa0b` e `d772e76`):

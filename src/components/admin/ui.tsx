@@ -71,7 +71,7 @@ export function useToast() {
 }
 
 // Mostrado quando um corretor tenta abrir uma tela só de administrador.
-export function AcessoRestrito() {
+export function AcessoRestrito({ texto = "Esta área é exclusiva dos administradores da imobiliária." }: { texto?: string }) {
   return (
     <div style={{ ...card, maxWidth: "520px", margin: "40px auto", textAlign: "center", padding: "48px 32px" }}>
       <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(201,169,110,0.12)", color: "var(--gold-500)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
@@ -79,7 +79,7 @@ export function AcessoRestrito() {
       </div>
       <div style={{ fontFamily: "var(--font-serif)", fontSize: "20px", fontWeight: 600, color: "var(--neutral-900)", marginBottom: "8px" }}>Acesso restrito</div>
       <p style={{ fontSize: "14px", color: "var(--neutral-400)", fontFamily: "var(--font-sans)", lineHeight: 1.6, marginBottom: "24px" }}>
-        Esta área é exclusiva dos administradores da imobiliária.
+        {texto}
       </p>
       <Link href="/admin" style={{ ...btnPrimary, display: "inline-flex", padding: "11px 24px" }}>Voltar ao painel</Link>
     </div>

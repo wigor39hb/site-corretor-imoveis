@@ -4,9 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSessao } from "@/context/SessaoContext";
-import { getCorretor } from "@/lib/mock/corretores";
 import { empreendimentosMock } from "@/lib/mock/publicacoes";
-import { ConfirmDialog, useToast } from "@/components/admin/ui";
+import { AcessoRestrito, ConfirmDialog, useToast } from "@/components/admin/ui";
 
 
 const badgeStyle: Record<string, React.CSSProperties> = {
@@ -19,16 +18,16 @@ const badgeStyle: Record<string, React.CSSProperties> = {
 export default function AdminEmpreendimentosPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-  const { isAdmin, usuario } = useSessao();
+  const { cuidaDeEmpreendimentos } = useSessao();
   const router = useRouter();
   const { toast, mostrar } = useToast();
   const [todos, setTodos] = useState(empreendimentosMock);
   const [excluindo, setExcluindo] = useState<{ id: number; nome: string } | null>(null);
 
-  // Corretor vê só os empreendimentos pelos quais é responsável; admin vê todos.
-  const empreendimentos = isAdmin ? todos : todos.filter((e) => e.corretorId === usuario.id);
+  // Empreendimentos são só de administradores e assistentes (decisão de 26/10).
+  if (!cuidaDeEmpreendimentos) return <AcessoRestrito texto="Esta área é exclusiva dos administradores e assistentes da imobiliária." />;
 
-  const filtered = empreendimentos.filter((e) => {
+  const filtered = todos.filter((e) => {
     const q = search.toLowerCase();
     const matchSearch = !q || e.nome.toLowerCase().includes(q) || e.loc.toLowerCase().includes(q);
     const matchStatus = !filterStatus || e.status === filterStatus;
@@ -107,12 +106,6 @@ export default function AdminEmpreendimentosPage() {
               <div style={{ fontSize: "13px", color: "var(--neutral-400)", marginBottom: "14px", display: "flex", alignItems: "center", gap: "4px", fontFamily: "var(--font-sans)" }}>
                 📍 {emp.loc}
               </div>
-              {isAdmin && (
-                <div style={{ fontSize: "12px", color: "var(--neutral-400)", marginTop: "-8px", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>
-                  Corretor: <strong style={{ color: "var(--neutral-600)", fontWeight: 500 }}>{getCorretor(emp.corretorId).nome}</strong>
-                </div>
-              )}
-
               {/* STATS */}
               <div style={{ display: "flex", gap: "16px", paddingTop: "14px", borderTop: "1px solid var(--neutral-100)" }}>
                 {[{ n: emp.unidades, l: "Unidades" }, { n: emp.disponiveis, l: "Disponíveis" }, { n: emp.entrega, l: "Entrega" }].map((s) => (

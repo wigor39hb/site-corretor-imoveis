@@ -5,7 +5,7 @@ import { useSessao } from "@/context/SessaoContext";
 import type { Opcao } from "@/lib/imoveis";
 import { card, cardHeader, cardTitle, fieldLabel, fieldInput, fieldHint, btnPrimary } from "@/components/admin/ui";
 
-// Card "Corretor responsável" dos formulários de imóvel e empreendimento.
+// Card "Corretor responsável" do formulário de imóvel.
 // Admin escolhe o corretor; corretor publica sempre em nome próprio.
 export default function CorretorResponsavelCampo({ opcoes, valor, onChange }: {
   opcoes: Opcao[];

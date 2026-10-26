@@ -1,6 +1,6 @@
 // Corretores de exemplo. Provisório: na etapa do banco de dados,
 // cada corretor é cadastrado pelo painel admin e esses dados vêm de lá.
-export type Papel = "admin" | "corretor";
+export type Papel = "admin" | "corretor" | "assistente";
 
 export interface CorretorMock {
   id: string;
@@ -29,4 +29,5 @@ export function getCorretor(id: string) {
 export const papelLabel: Record<Papel, string> = {
   admin: "Administrador",
   corretor: "Corretor",
+  assistente: "Assistente",
 };

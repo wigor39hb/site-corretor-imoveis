@@ -6,23 +6,23 @@ import { useSidebar } from "@/context/SidebarContext";
 import { useSessao } from "@/context/SessaoContext";
 import { useConfigSite } from "@/context/ConfigSiteContext";
 import Logo from "@/components/shared/Logo";
-import { papelLabel } from "@/lib/mock/corretores";
+import { papelLabel, type Papel } from "@/lib/mock/corretores";
 import { Avatar } from "@/components/admin/ui";
 import { LayoutDashboard, Home, Building2, User, Users, Settings, LogOut, X } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/imoveis", label: "Imóveis", icon: Home },
-  { href: "/admin/empreendimentos", label: "Empreendimentos", icon: Building2 },
-  { href: "/admin/corretores", label: "Corretores", icon: Users, soAdmin: true },
-  { href: "/admin/configuracoes", label: "Configurações do site", icon: Settings, soAdmin: true },
+  { href: "/admin/imoveis", label: "Imóveis", icon: Home, papeis: ["admin", "corretor"] },
+  { href: "/admin/empreendimentos", label: "Empreendimentos", icon: Building2, papeis: ["admin", "assistente"] },
+  { href: "/admin/corretores", label: "Corretores", icon: Users, papeis: ["admin"] },
+  { href: "/admin/configuracoes", label: "Configurações do site", icon: Settings, papeis: ["admin"] },
   { href: "/admin/perfil", label: "Meu perfil", icon: User },
-];
+] as { href: string; label: string; icon: typeof Home; exact?: boolean; papeis?: Papel[] }[];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { open, close } = useSidebar();
-  const { usuario, isAdmin } = useSessao();
+  const { usuario } = useSessao();
   const config = useConfigSite();
 
   const isActive = (href: string, exact?: boolean) =>
@@ -119,7 +119,7 @@ export default function Sidebar() {
         {/* Nav */}
         <nav style={{ flex: 1, padding: "16px 0", overflowY: "auto" }}>
           {navItems
-            .filter((item) => !item.soAdmin || isAdmin)
+            .filter((item) => !item.papeis || item.papeis.includes(usuario.papel))
             .map((item) => {
               const active = isActive(item.href, item.exact);
               const Icon = item.icon;

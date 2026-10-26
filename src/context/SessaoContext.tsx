@@ -11,13 +11,24 @@ export type UsuarioSessao = CorretorMock & { fotoUrl: string | null };
 interface SessaoContextType {
   usuario: UsuarioSessao;
   isAdmin: boolean;
+  // Empreendimentos: só administradores e assistentes.
+  cuidaDeEmpreendimentos: boolean;
+  // Imóveis: administradores e corretores (a assistente não mexe em imóveis).
+  cuidaDeImoveis: boolean;
 }
 
 const SessaoContext = createContext<SessaoContextType | null>(null);
 
 export function SessaoProvider({ usuario, children }: { usuario: UsuarioSessao; children: React.ReactNode }) {
   return (
-    <SessaoContext.Provider value={{ usuario, isAdmin: usuario.papel === "admin" }}>
+    <SessaoContext.Provider
+      value={{
+        usuario,
+        isAdmin: usuario.papel === "admin",
+        cuidaDeEmpreendimentos: usuario.papel === "admin" || usuario.papel === "assistente",
+        cuidaDeImoveis: usuario.papel !== "assistente",
+      }}
+    >
       {children}
     </SessaoContext.Provider>
   );

@@ -1,6 +1,6 @@
-import type { CorretorMock } from "@/lib/mock/corretores";
+import type { CorretorMock, Papel } from "@/lib/mock/corretores";
 
-// Pessoa do painel (admin ou corretor) como as telas usam.
+// Pessoa do painel (admin, corretor ou assistente) como as telas usam.
 export type Corretor = CorretorMock & { fotoUrl: string | null; apareceNoSite: boolean };
 
 export const COLUNAS_PERFIL =
@@ -16,7 +16,7 @@ export interface LinhaPerfil {
   foto_url: string | null;
   bio: string | null;
   instagram: string | null;
-  papel: "admin" | "corretor";
+  papel: Papel;
   ativo: boolean;
   aparece_no_site?: boolean;
 }

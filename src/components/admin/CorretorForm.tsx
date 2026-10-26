@@ -232,8 +232,9 @@ export default function CorretorForm({ inicial, ehVoce = false }: { inicial?: Co
               <label style={fieldLabel}>Papel</label>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
                 {([
-                  { v: "corretor", t: "Corretor", d: "Edita só o próprio perfil e as próprias publicações" },
-                  { v: "admin", t: "Administrador", d: "Gerencia corretores, configurações e todas as publicações" },
+                  { v: "corretor", t: "Corretor", d: "Edita só o próprio perfil e os próprios imóveis" },
+                  { v: "assistente", t: "Assistente", d: "Cuida de todos os empreendimentos. Não mexe em imóveis nem aparece no site" },
+                  { v: "admin", t: "Administrador", d: "Gerencia a equipe, as configurações, os imóveis e os empreendimentos" },
                 ] as { v: Papel; t: string; d: string }[]).map((op) => {
                   const sel = dados.papel === op.v;
                   return (
@@ -252,7 +253,9 @@ export default function CorretorForm({ inicial, ehVoce = false }: { inicial?: Co
               ) : (
                 <Toggle label="Ativo" sub="Desative quando o corretor sair da equipe" on={dados.ativo} onChange={(v) => set("ativo", v)} />
               )}
-              <Toggle label="Aparece no site" sub="Mostra o cartão na seção Nossa Equipe" on={dados.apareceNoSite} onChange={(v) => set("apareceNoSite", v)} />
+              {dados.papel !== "assistente" && (
+                <Toggle label="Aparece no site" sub="Mostra o cartão na seção Nossa Equipe" on={dados.apareceNoSite} onChange={(v) => set("apareceNoSite", v)} />
+              )}
             </div>
           </div>
 

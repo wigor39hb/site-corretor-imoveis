@@ -6,8 +6,8 @@ import { useSessao } from "@/context/SessaoContext";
 import { empreendimentosMock } from "@/lib/mock/publicacoes";
 
 type Empreendimento = (typeof empreendimentosMock)[number];
-import { corretores } from "@/lib/mock/corretores";
-import CorretorResponsavelCampo, { PublicacaoDeOutroCorretor, PublicacaoNaoEncontrada } from "@/components/admin/CorretorResponsavelCampo";
+import { PublicacaoNaoEncontrada } from "@/components/admin/CorretorResponsavelCampo";
+import { AcessoRestrito } from "@/components/admin/ui";
 
 type Status = "lancamento" | "obras" | "pronto" | "breve";
 
@@ -51,7 +51,6 @@ function EmpreendimentoEditarForm({ emp }: { emp: Empreendimento }) {
     "🔐 Segurança 24h com portaria blindada",
     "🚗 3 vagas por unidade",
   ]);
-  const [corretorId, setCorretorId] = useState(emp.corretorId);
   const [showToast, setShowToast] = useState(false);
 
   const addDiferencial = () => setDiferenciais([...diferenciais, ""]);
@@ -146,7 +145,6 @@ function EmpreendimentoEditarForm({ emp }: { emp: Empreendimento }) {
         </div>
 
         <div>
-          <CorretorResponsavelCampo opcoes={corretores} valor={corretorId} onChange={setCorretorId} />
           <div style={{ ...card, marginBottom: "16px" }}>
             <div style={{ ...cardHeader, padding: "16px 20px" }}><div style={cardTitle}>Status</div></div>
             <div style={{ padding: "20px" }}>
@@ -208,9 +206,9 @@ function EmpreendimentoEditarForm({ emp }: { emp: Empreendimento }) {
 
 export default function AdminEmpreendimentoEditarPage() {
   const { id } = useParams<{ id: string }>();
-  const { isAdmin, usuario } = useSessao();
+  const { cuidaDeEmpreendimentos, usuario } = useSessao();
   const emp = empreendimentosMock.find((x) => String(x.id) === id);
+  if (!cuidaDeEmpreendimentos) return <AcessoRestrito texto="Esta área é exclusiva dos administradores e assistentes da imobiliária." />;
   if (!emp) return <PublicacaoNaoEncontrada voltarPara="/admin/empreendimentos" />;
-  if (!isAdmin && emp.corretorId !== usuario.id) return <PublicacaoDeOutroCorretor voltarPara="/admin/empreendimentos" />;
   return <EmpreendimentoEditarForm key={`${usuario.id}-${emp.id}`} emp={emp} />;
 }
