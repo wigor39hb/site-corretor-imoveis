@@ -2,14 +2,15 @@
 
 > Documento de continuidade. Registra as decisões, o que já foi feito e o que falta,
 > para retomar o trabalho sem precisar explicar tudo de novo.
-> **Última atualização:** 20/10/2026 (fim do dia).
+> **Última atualização:** 26/10/2026 (fim do dia).
 
 ### ▶️ Onde paramos (ler primeiro ao retomar)
-- **26/10:** novo tipo de conta **Assistente** (cuida dos empreendimentos) e Empreendimentos só para admin + assistente. Banco atualizado (007 rodado) e testado por você. Ver seção 9.
+- **▶️ PRÓXIMO (27/10): página pública de detalhes do empreendimento** (a que o visitante abre ao clicar num empreendimento do site, `src/app/(public)/empreendimentos/[id]/page.tsx`). **Você vai descrever o que muda.** Combinado: eu respondo primeiro só com o que entendi + dúvidas, **sem editar nada**, e só mexo depois da sua confirmação.
+- **26/10:** novo tipo de conta **Assistente** (cuida dos empreendimentos) e Empreendimentos só para admin + assistente. Banco atualizado (007 rodado) e testado por você. Tudo no GitHub (commit `0060ca5`). Ver seção 9.
 - **20/10:** cadastro de imóvel refeito, com fotos funcionando, e site público (home, lista e página do imóvel) lendo do banco. Tudo salvo no GitHub (commit `d772e76`). Detalhes na seção 9.
 - **Você vai mostrar o projeto ao cliente** rodando no notebook da sua mãe (`git clone`/`git pull` → copiar `.env.local` → `npm install` → `npm run dev`).
 - **Propostas comerciais:** rascunho das duas (licença e assinatura) na seção 2.9. **Falta você escolher os valores** para eu montar o documento para enviar ao cliente.
-- **Depois:** mapa com círculo da região do imóvel (perguntas em aberto na seção 5), tela de **Empreendimentos** (você vai explicar como vai funcionar) e os ajustes que o cliente pedir.
+- **Depois:** mapa com círculo da região do imóvel (perguntas em aberto na seção 5), ligar a tela de **Empreendimentos** ao banco (com WhatsApp do dono na página pública), página Sobre e os ajustes que o cliente pedir.
 
 ---
 
@@ -423,6 +424,8 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 - A sessão do painel ganhou `cuidaDeEmpreendimentos` e `cuidaDeImoveis` (`SessaoContext`); o menu usa `papeis` por item.
 - Banco: `007_assistente_empreendimentos.sql` rodado e testado por você ✅.
 - ⏳ O Dashboard ainda usa contagens de exemplo e mostra os mesmos cartões para todos; ajustar por papel quando for ligado ao banco.
+- Commit `0060ca5` no GitHub.
+- **Fim do dia:** você avisou que quer mudar a **página pública de detalhes do empreendimento** e vai descrever as mudanças na próxima sessão (27/10). Nada foi alterado nela ainda.
 
 ### 20/10/2026
 **Feito e salvo no GitHub** (commits `ee8fa0b` e `d772e76`):
