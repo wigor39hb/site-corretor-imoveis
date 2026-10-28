@@ -2,14 +2,20 @@ import { createClient } from "@/lib/supabase/server";
 import { COLUNAS_IMOVEL, deImovel, type FotoImovel, type Imovel, type LinhaImovel, type Opcao } from "@/lib/imoveis";
 
 // Quem está logado no painel. Devolve o cliente da sessão, o id, se é admin
-// e se mexe em imóveis (a assistente não mexe).
+// e se mexe em imóveis (a assistente não mexe) e em empreendimentos (só admin e assistente).
 export async function usuarioPainel() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   const { data: perfil } = await supabase.from("perfis").select("papel, ativo").eq("id", user.id).single();
   if (!perfil?.ativo) return null;
-  return { supabase, uid: user.id, isAdmin: perfil.papel === "admin", cuidaDeImoveis: perfil.papel !== "assistente" };
+  return {
+    supabase,
+    uid: user.id,
+    isAdmin: perfil.papel === "admin",
+    cuidaDeImoveis: perfil.papel !== "assistente",
+    cuidaDeEmpreendimentos: perfil.papel === "admin" || perfil.papel === "assistente",
+  };
 }
 
 // O admin vê todos; o corretor, só os próprios. (O filtro é necessário porque

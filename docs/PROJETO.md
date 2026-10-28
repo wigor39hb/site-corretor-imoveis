@@ -2,10 +2,11 @@
 
 > Documento de continuidade. Registra as decisões, o que já foi feito e o que falta,
 > para retomar o trabalho sem precisar explicar tudo de novo.
-> **Última atualização:** 26/10/2026 (fim do dia).
+> **Última atualização:** 27/10/2026 (fim do dia).
 
 ### ▶️ Onde paramos (ler primeiro ao retomar)
-- **▶️ PRÓXIMO (27/10): página pública de detalhes do empreendimento** (a que o visitante abre ao clicar num empreendimento do site, `src/app/(public)/empreendimentos/[id]/page.tsx`). **Você vai descrever o que muda.** Combinado: eu respondo primeiro só com o que entendi + dúvidas, **sem editar nada**, e só mexo depois da sua confirmação.
+- **▶️ PRÓXIMO (28/10): você termina o teste da tela Empreendimentos** (roteiro na seção 9, 27/10, a partir do passo 4: publicar, ver no site, editar, "Em breve", conta de assistente). O 008 já foi rodado e a **importação do PDF já funcionou** com você. Se der erro, mandar o texto inteiro da mensagem vermelha (agora ela mostra o motivo entre parênteses).
+- **27/10:** Empreendimentos ligado ao banco (painel e site) + **importar fotos do PDF da construtora**. A página pública mostra só capa, galeria de lazer e contato: **sem plantas, implantação nem condições de pagamento** (pedido da corretora: com tudo no site, o cliente não chama). Ver seção 9.
 - **26/10:** novo tipo de conta **Assistente** (cuida dos empreendimentos) e Empreendimentos só para admin + assistente. Banco atualizado (007 rodado) e testado por você. Tudo no GitHub (commit `0060ca5`). Ver seção 9.
 - **20/10:** cadastro de imóvel refeito, com fotos funcionando, e site público (home, lista e página do imóvel) lendo do banco. Tudo salvo no GitHub (commit `d772e76`). Detalhes na seção 9.
 - **Você vai mostrar o projeto ao cliente** rodando no notebook da sua mãe (`git clone`/`git pull` → copiar `.env.local` → `npm install` → `npm run dev`).
@@ -258,7 +259,7 @@ O cliente vai escolher entre duas propostas.
 
 ### Telas públicas (próxima etapa)
 - [ ] **Página Sobre** ainda fala em 1ª pessoa ("João Corretor", "Minha história", depoimentos citando João, link de WhatsApp antigo). Tem também um aviso do lint: variável `i` sem uso, perto da linha 152.
-- [ ] **Lista de Empreendimentos** ainda tem o link de WhatsApp antigo. Você vai decidir para qual número ele aponta.
+- [x] **Lista de Empreendimentos**: lê do banco e o WhatsApp é o do dono (27/10).
 - [x] A página Contato mostra **só os corretores ativos** (e marcados para aparecer no site).
 - [ ] **Página Sobre** ainda não lê do banco: o texto ("Sobre a imobiliária") e os **depoimentos** já são editáveis nas Configurações, mas só aparecem quando a página for adaptada.
 - [ ] Onde mais destacar o WhatsApp do dono? (Já aparece no rodapé e no botão da home.) Ideias: botão flutuante, o dono como primeiro da equipe com um selo.
@@ -266,7 +267,7 @@ O cliente vai escolher entre duas propostas.
 
 ### Regras para definir antes do banco
 - [x] Empreendimentos: **só administradores e assistentes** (26/10). O menu some para o corretor, as telas mostram "Acesso restrito" e o banco bloqueia (arquivo 007).
-- [x] WhatsApp dos empreendimentos no site: **sempre o do dono** (26/10). Ele distribui os interessados para os corretores. Não existe mais "corretor responsável" no empreendimento (o campo saiu do formulário). ⏳ A página pública do empreendimento ainda usa dados de exemplo com cartão de corretor: trocar pelo WhatsApp do dono quando a tela Empreendimentos for ligada ao banco.
+- [x] WhatsApp dos empreendimentos no site: **sempre o do dono** (26/10). Ele distribui os interessados para os corretores. Não existe mais "corretor responsável" no empreendimento (o campo saiu do formulário). ✅ A página pública do empreendimento já usa o WhatsApp do dono (27/10).
 - [ ] Publicações de corretor precisam de aprovação de um admin antes de ir para o site?
 - [ ] O formulário de contato manda a mensagem para o admin ou para o corretor do imóvel?
 - [ ] Quando um corretor sai da equipe, os imóveis dele somem ou são transferidos para outro corretor?
@@ -311,7 +312,7 @@ Verificações de código (rodar na pasta `fornt-end`):
 3. ~~Corretores~~ ✅ feito (19/10).
 4. ~~Imóveis + fotos (3 versões) + páginas públicas de imóveis~~ ✅ feito (20/10).
 5. Mapa com círculo da região (aguardando suas respostas, seção 5).
-6. Empreendimentos (você vai explicar como funciona; o vínculo imóvel ↔ empreendimento foi retirado do formulário).
+6. ~~Empreendimentos~~ ✅ feito (27/10), falta você testar.
 7. Adaptar as telas públicas restantes (Sobre, lista de Empreendimentos…) já lendo do banco.
 
 ---
@@ -386,7 +387,7 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
     - Mudar status e excluir (um ou vários) gravam no banco.
     - Fotos: aviso "em breve" até a etapa Fotos. Ao excluir imóvel, falta apagar os arquivos do Storage (fazer na etapa Fotos).
     - Ainda nos dados de exemplo: contagens do Dashboard e as páginas públicas de imóveis.
-  - [ ] Empreendimentos
+  - [x] **Empreendimentos** (27/10): lista, cadastro, edição e exclusão pelo banco (`EmpreendimentosLista.tsx`, `EmpreendimentoForm.tsx`, `empreendimentos/acoes.ts`, `lib/empreendimentos*.ts`); fotos com **legenda**; **Importar do PDF** (`ImportarPdf.tsx`, `lib/helpers/pdf.ts`). ⏳ falta você testar.
   - [ ] Fotos de imóveis/empreendimentos (3 versões)
 - Mais tarde: a conta do dono da KL (admin) e as dos corretores serão criadas pela tela Corretores do painel.
 
@@ -400,6 +401,7 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 | `supabase/005_acesso_servidor.sql` | dá permissão nas tabelas à chave mestra (`service_role`), usada no servidor para cadastrar corretor | ✅ 19/10 |
 | `supabase/006_ficha_imovel.sql` | novo cadastro de imóvel: Destaques (`garagens`, `situacao`, `dormitorios`, `suites` passa a aceitar vazio); campos da "Ficha do imóvel" (unidades por andar, perfil, posição solar, escriturado, averbado, tem/aceita financiamento, áreas de terreno/construída/privativa/total); listas livres `comodos`, `caracteristicas`, `proximidades` e `condominio`; **apaga** área útil, quartos, banheiros, vagas, andar e todo o endereço | ✅ 20/10 |
 | `supabase/007_assistente_empreendimentos.sql` | papel novo `assistente`; empreendimentos (e as fotos deles) só admin e assistente veem no painel, criam, editam e excluem; `corretor_id` do empreendimento deixa de ser obrigatório; o site mostra todos os visíveis; assistente não cria imóveis | ✅ 26/10 |
+| `supabase/008_empreendimento_pagina.sql` | campo `registro_incorporacao` no empreendimento (aparece no rodapé da página). Os campos antigos sem uso (endereço, ano de entrega, total de unidades, diferenciais) ficam no banco | ✅ 27/10 |
 
 ⚠️ Se o código usa um campo que ainda não existe no banco, a tela dá erro ao salvar (aconteceu com o ícone antes de rodar o 002). Sempre rodar o arquivo novo antes de testar.
 
@@ -416,6 +418,41 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 ---
 
 ## 9. Diário das sessões
+
+### 27/10/2026
+**Como funciona o material dos empreendimentos:** a construtora manda à imobiliária uma apresentação em PDF (exemplo: `Pictures\kleine\empreendimentos\MATERIAL DE TREINAMENTO - LIV GOIABEIRAS`, 36 slides: institucional, fachada, ~20 fotos de lazer com nome, implantação, plantas, condições e documentos).
+- ⚠️ Esse PDF diz "uso exclusivo para treinamento, não divulgar ao público final" e "registro de incorporação em andamento, vedada a comercialização". **Antes de publicar, confirmar com o cliente** se as imagens podem ir para o site (o normal é a construtora liberar um material público). A lei pede o nº do registro de incorporação nos anúncios: por isso o campo novo.
+
+**Decisões (suas, depois de ver um exemplo em HTML):**
+- Fotos vêm do PDF: o painel separa as páginas e o assistente escolhe quais vão para o site, com legenda (opção B).
+- A página pública **não mostra plantas, implantação nem fluxo de pagamento**. Conversa com uma corretora: se o site mostrar tudo, o cliente não entra em contato.
+
+**Feito e salvo no GitHub:**
+1. **Banco:** `008_empreendimento_pagina.sql` (campo nº do registro de incorporação). ✅ rodado por você.
+2. **Painel → Empreendimentos ligado ao banco** (só admin e assistente):
+   - lista com capa, situação, "Fora do site", "★ Destaque", busca e filtro por situação; excluir apaga também as fotos do Storage;
+   - formulário: nome, construtora, texto de apresentação (opcional), bairro/cidade/estado (MT), resumo (área mínima/máxima e "Quartos", texto livre), fotos com **legenda**, situação (Em breve / Lançamento / Em obras / Pronto para morar), nº do registro de incorporação, destaque e visível;
+   - **1ª foto = capa** (topo da página); as outras formam a galeria. Mesmo envio das fotos dos imóveis (3 versões WebP, sobem ao salvar).
+3. **Importar do PDF** (botão no card Fotos): lê o PDF **no navegador** (pdf.js 3.11, o PDF não é enviado), tira a **foto limpa** de cada página (sem os avisos escritos por cima) e sugere legenda pelo título do slide. Fotos de lazer e a fachada vêm marcadas; plantas, implantação, condições e capas de seção vêm desmarcadas; a fachada vem como capa. Testado com o PDF do Liv: as sugestões saíram certas.
+   - Arquivo `public/pdf.worker.min.js` é cópia de `node_modules/pdfjs-dist/build/`. **Se um dia atualizar o pdfjs-dist, copiar de novo.** `next.config.mjs` ganhou `canvas: false` (exigência do pdf.js).
+4. **Site:** lista `/empreendimentos` e página do empreendimento lendo do banco: capa em tela cheia com situação, nome, local e resumo; texto de apresentação; **galeria de lazer** com legendas, que abre em tela cheia (setas e Esc); contato com o **WhatsApp do dono** ("Tenho interesse" ou, em "Em breve", "Cadastrar interesse"); rodapé com construtora, "imagens meramente ilustrativas" e o nº do registro.
+
+**Roteiro de teste:**
+1. Rodar `008_empreendimento_pagina.sql` no SQL Editor do Supabase.
+2. Com o `npm run dev` que já está aberto, entrar no painel → Empreendimentos → **+ Novo Empreendimento**.
+3. Preencher nome, bairro, cidade, resumo. Em Fotos → **Importar do PDF** → escolher o PDF do Liv → conferir as marcadas e as legendas → **Adicionar**.
+4. Conferir que a fachada está em 1º (Capa). Publicar. As fotos sobem uma a uma (o botão mostra o andamento).
+5. Na lista, "↗ Ver no site": conferir a capa, a galeria e a tela cheia. Testar no celular (ou com a janela estreita).
+6. Editar: trocar uma legenda, mudar a ordem, excluir uma foto, mudar para "Em breve" → salvar e conferir no site.
+7. Testar também com a conta de assistente.
+
+**Problema no teste e correção (mesmo dia):**
+- Você rodou o 008, reiniciou o servidor e, ao importar o PDF, apareceu "Não foi possível ler este PDF". O motivo real ficava escondido.
+- Testei no seu Chrome, logado no painel, com o PDF completo: **funcionou** (33 fotos, 20 marcadas com as legendas certas, fachada como capa). O mais provável é que a página do painel estivesse aberta desde antes de reiniciar o servidor (versão velha da tela, sem o leitor de PDF). **Depois de reiniciar o servidor, sempre recarregar com Ctrl + F5.**
+- Para não travar de novo: uma página do PDF com problema agora é **pulada** (as outras continuam); PDF sem tipo informado (acontece no Windows) é aceito pelo nome `.pdf`; a mensagem de erro mostra o motivo entre parênteses e, quando é o caso, pede para recarregar a página.
+- Depois disso, você testou e **a importação funcionou**. O resto do roteiro (passos 4 a 7) fica para 28/10.
+
+**Pendências:** terminar o teste (28/10); Dashboard ainda conta os empreendimentos de exemplo; o mapa (seção 5) também vale para o empreendimento; confirmar com o cliente se as imagens do PDF de treinamento podem ir para o site.
 
 ### 26/10/2026
 - O Supabase tinha pausado o projeto (7 dias sem uso, plano Free). Você clicou em **Resume project** e voltou tudo, sem perder dados.

@@ -5,7 +5,7 @@ import { COLUNAS_PERFIL, dePerfil, type Corretor, type LinhaPerfil } from "@/lib
 // Leituras do site público. Usa a chave pública SEM a sessão de quem está logado,
 // para o site mostrar exatamente o que um visitante vê (só imóveis visíveis de
 // corretores ativos), mesmo que o admin esteja logado no mesmo navegador.
-function clienteVisitante() {
+export function clienteVisitante() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     auth: { persistSession: false, autoRefreshToken: false },
   });

@@ -788,6 +788,23 @@ body { overflow-x: hidden; }
 .emp-hero-outer { min-height: 70vh; }
 @media (max-width: 768px) { .emp-hero-outer { min-height: 50vh; } }
 
+/* Empreendimento: seções, galeria de lazer (a 1ª de cada 7 fotos ocupa 2×2) e tela cheia */
+.emp-secao { max-width: 1200px; margin: 0 auto; padding: 88px 60px; }
+@media (max-width: 1024px) { .emp-secao { padding: 64px 32px; } }
+@media (max-width: 768px) { .emp-secao { padding: 48px 24px; } }
+.emp-galeria { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 210px; gap: 10px; }
+.emp-galeria-item { position: relative; overflow: hidden; cursor: zoom-in; background: var(--navy-800); border: none; padding: 0; }
+.emp-galeria-item:nth-child(7n+1) { grid-column: span 2; grid-row: span 2; }
+.emp-galeria-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease-luxury); }
+.emp-galeria-item:hover img { transform: scale(1.05); }
+.emp-galeria-legenda { position: absolute; left: 0; right: 0; bottom: 0; padding: 32px 14px 12px; background: linear-gradient(transparent, rgba(13,27,42,0.85)); color: #fff; font-family: var(--font-sans); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; text-align: left; }
+@media (max-width: 768px) { .emp-galeria { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 150px; } }
+.emp-hero-stats { display: flex; gap: 40px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 24px; }
+@media (max-width: 768px) { .emp-hero-stats { gap: 24px; } }
+.tela-cheia { position: fixed; inset: 0; z-index: 500; background: rgba(5,10,16,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; }
+.tela-cheia img { max-width: 100%; max-height: 82vh; object-fit: contain; }
+.tela-cheia button { position: absolute; background: none; border: none; color: #fff; font-size: 40px; line-height: 1; cursor: pointer; padding: 12px 16px; }
+
 /* Sobre hero stats row — responsive gap + wrap */
 .sobre-hero-stats { display: flex; gap: 48px; margin-top: 36px; }
 @media (max-width: 768px) { .sobre-hero-stats { gap: 24px; flex-wrap: wrap; } }
