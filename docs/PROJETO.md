@@ -2,10 +2,11 @@
 
 > Documento de continuidade. Registra as decisões, o que já foi feito e o que falta,
 > para retomar o trabalho sem precisar explicar tudo de novo.
-> **Última atualização:** 27/10/2026 (fim do dia).
+> **Última atualização:** 29/10/2026.
 
 ### ▶️ Onde paramos (ler primeiro ao retomar)
-- **▶️ PRÓXIMO (28/10): você termina o teste da tela Empreendimentos** (roteiro na seção 9, 27/10, a partir do passo 4: publicar, ver no site, editar, "Em breve", conta de assistente). O 008 já foi rodado e a **importação do PDF já funcionou** com você. Se der erro, mandar o texto inteiro da mensagem vermelha (agora ela mostra o motivo entre parênteses).
+- **▶️ PRÓXIMO: você termina o teste da tela Empreendimentos** (a importação agora funciona também com PDFs que têm fundo repetido; ver 29/10 na seção 9). Roteiro na seção 9 (27/10, a partir do passo 4: publicar, ver no site, editar, "Em breve", conta de assistente). O 008 já foi rodado e a **importação do PDF já funcionou** com você. Se der erro, mandar o texto inteiro da mensagem vermelha (agora ela mostra o motivo entre parênteses).
+- **29/10:** importação do PDF corrigida para PDFs com **textura de fundo repetida** (Caderno Técnico My Club, BOOK DIGITAL 3). Você testou e funcionou. Ver seção 9.
 - **27/10:** Empreendimentos ligado ao banco (painel e site) + **importar fotos do PDF da construtora**. A página pública mostra só capa, galeria de lazer e contato: **sem plantas, implantação nem condições de pagamento** (pedido da corretora: com tudo no site, o cliente não chama). Ver seção 9.
 - **26/10:** novo tipo de conta **Assistente** (cuida dos empreendimentos) e Empreendimentos só para admin + assistente. Banco atualizado (007 rodado) e testado por você. Tudo no GitHub (commit `0060ca5`). Ver seção 9.
 - **20/10:** cadastro de imóvel refeito, com fotos funcionando, e site público (home, lista e página do imóvel) lendo do banco. Tudo salvo no GitHub (commit `d772e76`). Detalhes na seção 9.
@@ -418,6 +419,18 @@ Os nomes das variáveis continuam os antigos para não mexer no código; a publi
 ---
 
 ## 9. Diário das sessões
+
+### 29/10/2026
+**Problema:** ao importar o **"Caderno Técnico My Club"** (72 páginas), todas as fotos saíram iguais: uma textura branca de fundo. O leitor pegava a **maior imagem de cada página**, e esse PDF (e também o "BOOK DIGITAL 3") tem uma textura de fundo, maior que as fotos, repetida em todos os slides. O PDF do Liv não tem isso, por isso funcionava.
+
+**Correção** (`src/lib/helpers/pdf.ts`): cada imagem ganha uma "impressão digital" (tamanho + miniatura 8x8). Imagem que aparece em mais de uma página é fundo ou enfeite e é ignorada; de cada página sai a maior imagem que é **só dela**. No fim, imagens que aparecem em 3 páginas ou mais são retiradas (caso da 1ª página, que ainda não sabia que o fundo se repete).
+- Simulação: Caderno Técnico 72 páginas → 60 fotos; BOOK DIGITAL 3 51 → 41; Liv 36 → 29 (as que saíram do Liv são capas de seção com enfeite repetido, que já vinham desmarcadas).
+- ✅ Você testou e **funcionou**. Vai fazer mais testes depois (parou cedo por causa de uma reunião).
+
+**Pontos em aberto:**
+- Nesses PDFs as **legendas sugeridas** saem estranhas (ex.: "Basta apertar o botão do"): conferir e corrigir antes de adicionar.
+- Algumas páginas do Caderno Técnico têm **2 ou 3 fotos lado a lado** e o leitor traz só a maior. Se quiser todas, dá para ajustar.
+- Continua valendo: terminar o roteiro de teste de 27/10 (passos 4 a 7) e confirmar com o cliente se as imagens dos PDFs podem ir para o site.
 
 ### 27/10/2026
 **Como funciona o material dos empreendimentos:** a construtora manda à imobiliária uma apresentação em PDF (exemplo: `Pictures\kleine\empreendimentos\MATERIAL DE TREINAMENTO - LIV GOIABEIRAS`, 36 slides: institucional, fachada, ~20 fotos de lazer com nome, implantação, plantas, condições e documentos).

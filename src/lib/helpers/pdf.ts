@@ -1,6 +1,6 @@
 // Separa a apresentação em PDF de um empreendimento em fotos, no navegador.
-// De cada página sai a maior imagem que está dentro dela, sem os textos escritos
-// por cima (avisos, títulos). O PDF não é enviado para lugar nenhum.
+// De cada página sai a maior imagem que é só dela (o fundo repetido em todos os slides
+// é ignorado), sem os textos escritos por cima (avisos, títulos). O PDF não é enviado para lugar nenhum.
 import type { PDFPageProxy } from "pdfjs-dist";
 
 export type FotoDoPdf = {
@@ -30,13 +30,10 @@ function obterImagem(pagina: PDFPageProxy, nome: string): Promise<ImagemPdf | nu
   return new Promise((resolve) => objetos.get(nome, (img: ImagemPdf | null) => resolve(img)));
 }
 
-// Desenha a imagem num canvas (reduzida para no máximo LADO_MAX), com fundo branco
-// onde ela for transparente.
-function desenhar(img: ImagemPdf): HTMLCanvasElement | null {
-  let origem: CanvasImageSource;
-  if (img.bitmap) {
-    origem = img.bitmap;
-  } else if (img.data && (img.kind === 2 || img.kind === 3)) {
+// A imagem num formato que o canvas desenha.
+function origemDa(img: ImagemPdf): CanvasImageSource | null {
+  if (img.bitmap) return img.bitmap;
+  if (img.data && (img.kind === 2 || img.kind === 3)) {
     // kind 2 = RGB (3 bytes por ponto), kind 3 = RGBA (4 bytes por ponto)
     const temp = document.createElement("canvas");
     temp.width = img.width;
@@ -50,10 +47,31 @@ function desenhar(img: ImagemPdf): HTMLCanvasElement | null {
       dados.data[i + 3] = 255;
     }
     temp.getContext("2d")?.putImageData(dados, 0, 0);
-    origem = temp;
-  } else {
-    return null;
+    return temp;
   }
+  return null;
+}
+
+// "Impressão digital" da imagem: tamanho + miniatura de 8x8 pontos. Serve para
+// reconhecer a mesma imagem em páginas diferentes.
+function digital(img: ImagemPdf): string {
+  const origem = origemDa(img);
+  const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+  if (!origem || !ctx) return `${img.width}x${img.height}`;
+  ctx.canvas.width = 8;
+  ctx.canvas.height = 8;
+  ctx.drawImage(origem, 0, 0, 8, 8);
+  const pontos = ctx.getImageData(0, 0, 8, 8).data;
+  let cores = "";
+  for (let i = 0; i < pontos.length; i++) cores += (pontos[i] >> 4).toString(16);
+  return `${img.width}x${img.height}:${cores}`;
+}
+
+// Desenha a imagem num canvas (reduzida para no máximo LADO_MAX), com fundo branco
+// onde ela for transparente.
+function desenhar(img: ImagemPdf): HTMLCanvasElement | null {
+  const origem = origemDa(img);
+  if (!origem) return null;
   const escala = Math.min(1, LADO_MAX / Math.max(img.width, img.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(img.width * escala);
@@ -113,6 +131,10 @@ export async function extrairFotosDoPdf(
   // isEvalSupported: false fecha uma falha de segurança conhecida do pdf.js com PDFs maliciosos.
   const documento = await pdfjs.getDocument({ data: await arquivo.arrayBuffer(), isEvalSupported: false }).promise;
   const fotos: FotoDoPdf[] = [];
+  const digitais = new Map<FotoDoPdf, string>(); // imagem de onde saiu cada foto
+  // Em quantas páginas cada imagem aparece. A que se repete é fundo ou enfeite
+  // (ex.: uma textura atrás de todos os slides), não a foto da página.
+  const paginasPorImagem = new Map<string, number>();
   try {
     for (let n = 1; n <= documento.numPages; n++) {
       aoAvancar(n, documento.numPages);
@@ -125,14 +147,25 @@ export async function extrairFotosDoPdf(
         operacoes.fnArray.forEach((fn, i) => {
           if (fn === pdfjs.OPS.paintImageXObject) nomes.add(operacoes.argsArray[i][0]);
         });
-        let maior: ImagemPdf | null = null;
+        // A maior imagem que ainda não apareceu em páginas anteriores.
+        // Imagens com nome "g_" são as que o pdf.js já viu repetidas.
+        let maior: { img: ImagemPdf; digital: string } | null = null;
+        const daPagina = new Set<string>();
         for (const nome of Array.from(nomes)) {
           const img = await obterImagem(pagina, nome);
-          if (img && (!maior || img.width * img.height > maior.width * maior.height)) maior = img;
+          if (!img || Math.min(img.width, img.height) < LADO_MIN) continue;
+          const d = digital(img);
+          if (daPagina.has(d)) continue;
+          daPagina.add(d);
+          const repetida = nome.startsWith("g_") || paginasPorImagem.has(d);
+          paginasPorImagem.set(d, (paginasPorImagem.get(d) ?? 0) + 1);
+          if (!repetida && (!maior || img.width * img.height > maior.img.width * maior.img.height)) {
+            maior = { img, digital: d };
+          }
         }
-        if (!maior || Math.min(maior.width, maior.height) < LADO_MIN) continue;
+        if (!maior) continue;
 
-        const canvas = desenhar(maior);
+        const canvas = desenhar(maior.img);
         if (!canvas) continue;
         const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
         if (!blob) continue;
@@ -140,14 +173,16 @@ export async function extrairFotosDoPdf(
         const linhas = await linhasDaPagina(pagina);
         const titulo = tituloDoSlide(linhas);
         const foto = new File([blob], `pagina-${n}.jpg`, { type: "image/jpeg" });
-        fotos.push({
+        const nova: FotoDoPdf = {
           pagina: n,
           arquivo: foto,
           preview: URL.createObjectURL(foto),
           legenda: titulo,
           usar: !!titulo && !NAO_USAR.test(linhas.join(" ")),
           capa: /fachada/i.test(titulo),
-        });
+        };
+        fotos.push(nova);
+        digitais.set(nova, maior.digital);
       } catch (e) {
         console.error(`PDF: página ${n} não pôde ser lida:`, e);
       } finally {
@@ -157,5 +192,11 @@ export async function extrairFotosDoPdf(
   } finally {
     await documento.destroy();
   }
-  return fotos;
+  // A 1ª página com o fundo ainda não sabia que ele se repete: tira agora
+  // as imagens que apareceram em 3 páginas ou mais.
+  return fotos.filter((f) => {
+    const fundo = (paginasPorImagem.get(digitais.get(f) ?? "") ?? 0) >= 3;
+    if (fundo) URL.revokeObjectURL(f.preview);
+    return !fundo;
+  });
 }
